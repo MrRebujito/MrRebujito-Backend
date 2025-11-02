@@ -1,7 +1,9 @@
 package mrRebujito.MrRebujito.entity;
 
+import jakarta.persistence.Entity;
 import jakarta.validation.constraints.NotNull;
 
+@Entity
 public class SolicitudLicencia extends DomainEntity{
 	// Atributo de tipo Enum (He creado un enum antes de esto)
 	@NotNull

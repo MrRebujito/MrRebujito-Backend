@@ -1,5 +1,7 @@
 package mrRebujito.MrRebujito.entity;
 
+import java.util.List;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Inheritance;
@@ -23,6 +25,8 @@ public abstract class Caseta  extends Actor{
 	
 	@NotNull
 	private boolean publica;
+	
+	private List<Socio> listaSocios;
 
 	// Creación del constructor vacío y constructor completo
 	public Caseta() {
@@ -60,6 +64,15 @@ public abstract class Caseta  extends Actor{
 	public void setPublica(boolean publica) {
 		this.publica = publica;
 	}
+
+	public List<Socio> getListaSocios() {
+		return listaSocios;
+	}
+
+	public void setListaSocios(List<Socio> listaSocios) {
+		this.listaSocios = listaSocios;
+	}
+	
 	
 	
 }
