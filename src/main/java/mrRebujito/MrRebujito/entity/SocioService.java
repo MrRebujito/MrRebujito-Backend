@@ -1,0 +1,80 @@
+package mrRebujito.MrRebujito.entity;
+
+import java.util.List;
+import java.util.Optional;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+@Service
+public class SocioService {
+
+	@Autowired 
+	private SocioRepository socioRepository;
+
+	
+	//Método para obtener un socio
+	//Se le tiene que pasar un id, que es el generado por DomainEntity
+	public Optional<Socio> findById(int id){
+		
+		//Llama al método de socioRepository, viene dado por el Jpa
+		return this.socioRepository.findById(id);
+	}
+	
+	
+	//Método para obtener todos los socios
+	public List<Socio> findAll() {
+		
+		return this.socioRepository.findAll();
+	}
+	
+	//Método para guardar un socio, falta modificarlo para el estado de licencia
+	public Socio save(Socio socio) {
+		return this.socioRepository.save(socio);
+	}
+	
+	
+	//Método para actualizar un socio por id 
+	public Socio update(int idSocio, Socio socio) {
+		
+		//Variable socio optional para encontrar el socio por id
+		Optional<Socio> opSocio= findById(idSocio);
+		
+		//Comprueba si el socio existe
+		if(opSocio.isPresent()) {
+			
+			//Si existe te guarda el socio y se hacen los cambios
+			Socio soc = opSocio.get();
+			
+			soc.setNombre(socio.getNombre());
+			soc.setPrimerApellido(socio.getPrimerApellido());
+			soc.setSegundoApellido(socio.getSegundoApellido());
+			soc.setFoto(socio.getFoto());
+			soc.setCorreo(socio.getCorreo());
+			soc.setDireccion(socio.getDireccion());
+			soc.setTelefono(socio.getTelefono());
+			
+			//Te devuelve el socio guardado
+			return save(soc);
+		}
+		
+		//Si no existe te devuelve null
+		return null;
+		
+	}
+	
+	//Método para eliminar por id 
+	public void delete(int id) {
+		this.socioRepository.deleteById(id);
+	}
+	
+    //Método para obtener las casetas a las que pertenece un socio específico
+    public List<Caseta> getCasetasBySocio(int idSocio) {
+        Optional<Socio> opSocio = findById(idSocio);
+        if (opSocio.isPresent()) {
+            Socio socio = opSocio.get();
+            return socio.getCasetas();
+        }
+        return java.util.Collections.emptyList();
+    }
+}
