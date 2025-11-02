@@ -16,10 +16,10 @@ public abstract class Actor extends DomainEntity{
 	private String foto;
 	
 	@NotBlank
-	@Pattern(regexp = "^\\w[@]\\w[.]\\w$")
+	@Pattern(regexp = "^[\\w.-]+@[\\w.-]+\\.[a-zA-Z]{2,6}$")
 	private String correo;
 	
-	@Pattern(regexp = "^[6-9][0-9][8]$")
+	@Pattern(regexp = "^[6-9][0-9]{8}$")
 	private String telefono;
 	
 	private String direccion;
