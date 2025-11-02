@@ -1,6 +1,7 @@
 package mrRebujito.MrRebujito.entity;
 
 import jakarta.persistence.Entity;
+import jakarta.persistence.ManyToOne;
 import jakarta.validation.constraints.NotNull;
 
 @Entity
@@ -9,6 +10,8 @@ public class SolicitudLicencia extends DomainEntity{
 	@NotNull
 	private EstadoLicencia estadoLicencia;
 
+	@ManyToOne
+	private Ayuntamiento ayuntamiento;
 	
 	// Constructores, uno vacio y uno completo
 	public SolicitudLicencia() {

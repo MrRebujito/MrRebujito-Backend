@@ -2,10 +2,18 @@ package mrRebujito.MrRebujito.entity;
 
 import java.util.List;
 
+import org.hibernate.annotations.ManyToAny;
+
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.Inheritance;
 import jakarta.persistence.InheritanceType;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.JoinTable;
+import jakarta.persistence.ManyToMany;
+import jakarta.persistence.OneToMany;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -26,7 +34,18 @@ public abstract class Caseta  extends Actor{
 	@NotNull
 	private boolean publica;
 	
-	private List<Socio> listaSocios;
+	@ManyToMany(fetch=FetchType.EAGER, cascade = CascadeType.MERGE)
+	@JoinTable(
+			name = "Caseta_Socios", joinColumns = @JoinColumn(name = "caseta_id", referencedColumnName = "id"),
+			inverseJoinColumns = @JoinColumn(name = "socio_id", referencedColumnName = "id")
+			)
+	private List<Socio> socios;
+	
+	@OneToMany
+	private List<SolicitudLicencia> solicitudesLicencia;
+	
+	@ManyToMany
+	private List<Producto> productos; 
 
 	// Creación del constructor vacío y constructor completo
 	public Caseta() {
@@ -66,11 +85,11 @@ public abstract class Caseta  extends Actor{
 	}
 
 	public List<Socio> getListaSocios() {
-		return listaSocios;
+		return socios;
 	}
 
 	public void setListaSocios(List<Socio> listaSocios) {
-		this.listaSocios = listaSocios;
+		this.socios = listaSocios;
 	}
 	
 	
