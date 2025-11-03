@@ -2,7 +2,6 @@ package mrRebujito.MrRebujito.entity;
 
 import java.util.List;
 
-import org.hibernate.annotations.ManyToAny;
 
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
