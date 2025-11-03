@@ -45,6 +45,22 @@ public class CasetaService {
 			// En caso de que exista obtengo el objeto
 			Caseta caseta = oCaseta.get();
 			
+			//-- VALIDACIÓN AFORO DE LA CASETA --
+			// Tenemos que contar cuantos socios tiene la caseta
+			int numSocios = 0;
+			
+			// Comprobamos si la lista existe antes de accederla
+			if (caseta.getListaSocios() != null) {
+				numSocios = caseta.getListaSocios().size();
+			}
+			
+			// Compruebo si el nuevo aforo que tenemos es menor que los socios actuales
+			if (casetaDatos.getAforo() < numSocios) {
+				// Si es menor, hacemos que no se actualice
+				return null;
+			}
+			
+			
 			// Actualizo los campos que heredamos de Actor
 			caseta.setNombre(casetaDatos.getNombre());
 			caseta.setCorreo(casetaDatos.getCorreo());
