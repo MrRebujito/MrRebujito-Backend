@@ -20,7 +20,7 @@ import jakarta.validation.constraints.NotNull;
 
 @Entity
 @Inheritance(strategy = InheritanceType.TABLE_PER_CLASS)
-public abstract class Caseta  extends Actor{
+public class Caseta extends Actor{
 	// Atributos de la tabla Caseta
 	@NotBlank
 	@Column(unique = true)
