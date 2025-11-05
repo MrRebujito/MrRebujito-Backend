@@ -12,14 +12,19 @@ public class Ayuntamiento extends Actor{
 	@Min(0)
 	private int LicenciaMax;
 
-	public Ayuntamiento(int licenciaMax) {
+	
+	public Ayuntamiento() {
+		super();
+	}
+	
+	
+
+	public Ayuntamiento(@NotNull @Min(0) int licenciaMax) {
 		super();
 		LicenciaMax = licenciaMax;
 	}
 
-	public Ayuntamiento() {
-		super();
-	}
+
 
 	public int getLicenciaMax() {
 		return LicenciaMax;
