@@ -6,6 +6,9 @@ import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import jakarta.transaction.Transactional;
+import mrRebujito.MrRebujito.entity.Ayuntamiento;
+import mrRebujito.MrRebujito.entity.EstadoLicencia;
 import mrRebujito.MrRebujito.entity.SolicitudLicencia;
 import mrRebujito.MrRebujito.repository.SolicitudLicenciaRepository;
 
@@ -34,23 +37,37 @@ public class SolicitudLicenciaService {
 	}
 	
 	
-	// Método para actualizar una solicitud que ya existe 
-	public SolicitudLicencia update(int id, SolicitudLicencia solicitudDatos) {
-		// Buscamos la solicicitud con el método por id
-		Optional<SolicitudLicencia> oSolicitud = findById(id);
-		
-		// Compruebo si existe
-		if (oSolicitud.isPresent()) {
-			// En caso de que exista, obtenemos la instancia de solicitud
-			SolicitudLicencia solicitud = oSolicitud.get();
-			
-			// Actualizamos los campos
-			solicitud.setEstadoLicencia(solicitudDatos.getEstadoLicencia());
-			
-			
-			return save(solicitud);
-		}
-		return null;
+	@Transactional
+	public SolicitudLicencia update(int idSolicitudLicencia, SolicitudLicencia solicitudLicenciaActualizada) {
+	    Optional<SolicitudLicencia> oSolicitudLicencia = findById(idSolicitudLicencia);
+
+	    if (oSolicitudLicencia.isPresent()) {
+	        SolicitudLicencia solicitudExistente = oSolicitudLicencia.get();
+	        EstadoLicencia nuevoEstado = solicitudLicenciaActualizada.getEstadoLicencia();
+
+	        // Si el nuevo estado es 'APROBADA' aceptamos el update
+	        if (nuevoEstado.name().equals("APROBADA")) {
+	            
+	            Ayuntamiento ayuntamiento = solicitudExistente.getAyuntamiento();
+	            int ayuntamientoId = ayuntamiento.getId();
+	            
+	            // A. Contar las licencias activas
+	            long licenciasActivas = solicitudRepository.countApprovedLicensesByAyuntamiento(ayuntamientoId);
+	            int limiteMaximo = ayuntamiento.getLicenciaMax(); 
+	            
+	            // B. Validar la regla de negocio
+	            if (licenciasActivas >= limiteMaximo) {
+	                String mensaje = String.format("Error de límite: El Ayuntamiento %s ya ha alcanzado su límite de licencias (%d).", 
+	                                                ayuntamiento.getNombre(), limiteMaximo);
+	                throw new IllegalStateException(mensaje);
+	            }
+	        }
+	        
+	        // Si no hay problema, actualizamos y guardamos
+	        solicitudExistente.setEstadoLicencia(nuevoEstado);
+	        return save(solicitudExistente);
+	    }
+	    return null;
 	}
 	
 	
