@@ -2,6 +2,7 @@ package mrRebujito.MrRebujito.entity;
 
 import java.util.List;
 
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Inheritance;
@@ -32,7 +33,7 @@ public class Caseta extends Actor{
 	@ManyToMany()
 	private List<Socio> socios;
 	
-	@OneToMany()
+	@OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
 	@JoinColumn(name = "caseta_id")
 	private List<SolicitudLicencia> solicitudesLicencia;
 	

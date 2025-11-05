@@ -12,35 +12,38 @@ public class Producto extends DomainEntity {
 
 		//Declaración de atributos, 
 		@NotBlank
-		private String Nombre;
+		private String nombre;
 		
 		@NotNull
 		@Enumerated(EnumType.STRING)
 		private TipoAlimento tipoAlimento;
 		
 		@Min(value = 0)
-		private Double precio;
+		private double precio;
 		
 		public Producto() {
 			super();
 		}
-		
-		
+
 
 		public Producto(@NotBlank String nombre, @NotNull TipoAlimento tipoAlimento, @Min(0) Double precio) {
 			super();
-			Nombre = nombre;
+			this.nombre = nombre;
 			this.tipoAlimento = tipoAlimento;
 			this.precio = precio;
 		}
 
+
+
+
+
 		//Generamos los Getters y los Setters
 		public String getNombre() {
-			return Nombre;
+			return nombre;
 		}
 
 		public void setNombre(String nombre) {
-			Nombre = nombre;
+			this.nombre = nombre;
 		}
 
 		public TipoAlimento getTipoAlimento() {
@@ -51,7 +54,7 @@ public class Producto extends DomainEntity {
 			this.tipoAlimento = tipoAlimento;
 		}
 
-		public Double getPrecio() {
+		public double getPrecio() {
 			return precio;
 		}
 
