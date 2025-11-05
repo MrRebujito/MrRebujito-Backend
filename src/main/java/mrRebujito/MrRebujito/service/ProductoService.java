@@ -43,7 +43,6 @@ public class ProductoService {
 				Producto pro = opProducto.get();
 				
 				pro.setNombre(producto.getNombre());
-				pro.setCaseta(producto.getCaseta());
 				pro.setPrecio(producto.getPrecio());
 				pro.setTipoAlimento(producto.getTipoAlimento());
 				
