@@ -6,7 +6,6 @@ import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import mrRebujito.MrRebujito.entity.Caseta;
 import mrRebujito.MrRebujito.entity.Socio;
 import mrRebujito.MrRebujito.repository.SocioRepository;
 
@@ -72,13 +71,4 @@ public class SocioService {
 		this.socioRepository.deleteById(id);
 	}
 	
-    //Método para obtener las casetas a las que pertenece un socio específico
-    public List<Caseta> getCasetasBySocio(int idSocio) {
-        Optional<Socio> opSocio = findById(idSocio);
-        if (opSocio.isPresent()) {
-            Socio socio = opSocio.get();
-            return socio.getCasetas();
-        }
-        return java.util.Collections.emptyList();
-    }
 }
