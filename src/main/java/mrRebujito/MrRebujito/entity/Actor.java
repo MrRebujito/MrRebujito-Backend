@@ -1,5 +1,7 @@
 package mrRebujito.MrRebujito.entity;
 
+import org.hibernate.validator.constraints.URL;
+
 import jakarta.persistence.Entity;
 import jakarta.persistence.Inheritance;
 import jakarta.persistence.InheritanceType;
@@ -13,6 +15,7 @@ public abstract class Actor extends DomainEntity{
 	@NotBlank
 	private String nombre;
 	
+	@URL
 	private String foto;
 	
 	@NotBlank
