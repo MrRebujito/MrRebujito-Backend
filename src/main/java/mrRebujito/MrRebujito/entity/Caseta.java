@@ -2,15 +2,11 @@ package mrRebujito.MrRebujito.entity;
 
 import java.util.List;
 
-
-import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
-import jakarta.persistence.FetchType;
 import jakarta.persistence.Inheritance;
 import jakarta.persistence.InheritanceType;
 import jakarta.persistence.JoinColumn;
-import jakarta.persistence.JoinTable;
 import jakarta.persistence.ManyToMany;
 import jakarta.persistence.OneToMany;
 import jakarta.validation.constraints.Min;
@@ -33,14 +29,11 @@ public class Caseta extends Actor{
 	@NotNull
 	private boolean publica;
 	
-	@ManyToMany(fetch=FetchType.EAGER, cascade = CascadeType.MERGE)
-	@JoinTable(
-			name = "Caseta_Socios", joinColumns = @JoinColumn(name = "caseta_id", referencedColumnName = "id"),
-			inverseJoinColumns = @JoinColumn(name = "socio_id", referencedColumnName = "id")
-			)
+	@ManyToMany()
 	private List<Socio> socios;
 	
-	@OneToMany
+	@OneToMany()
+	@JoinColumn(name = "caseta_id")
 	private List<SolicitudLicencia> solicitudesLicencia;
 	
 	@ManyToMany
@@ -90,6 +83,57 @@ public class Caseta extends Actor{
 	public void setListaSocios(List<Socio> listaSocios) {
 		this.socios = listaSocios;
 	}
+
+	public List<Socio> getSocios() {
+		return socios;
+	}
+
+	public void setSocios(List<Socio> socios) {
+		this.socios = socios;
+	}
+
+	public List<SolicitudLicencia> getSolicitudesLicencia() {
+		return solicitudesLicencia;
+	}
+
+	public void setSolicitudesLicencia(List<SolicitudLicencia> solicitudesLicencia) {
+		this.solicitudesLicencia = solicitudesLicencia;
+	}
+
+	public List<Producto> getProductos() {
+		return productos;
+	}
+
+	public void setProductos(List<Producto> productos) {
+		this.productos = productos;
+	}
+	//Métodos auxiliares add y remove
+	
+	 public void addSolicitud(SolicitudLicencia solicitud) {
+			solicitudesLicencia.add(solicitud);
+	 }
+
+	 public void removeSolicitud(SolicitudLicencia solicitud) {
+	    	solicitudesLicencia.remove(solicitud);
+	 }
+	    
+	 public void addSocio(Socio socio) {
+			socios.add(socio);
+	 }
+
+	 public void removeSolicitud(Socio socio) {
+	    	socios.remove(socio);
+	 }
+	 
+	 public void addProducto(Producto producto) {
+			productos.add(producto);
+	 }
+
+	 public void removeProducto(Producto producto) {
+	    	productos.remove(producto);
+	 }
+	
+	
 	
 	
 	
