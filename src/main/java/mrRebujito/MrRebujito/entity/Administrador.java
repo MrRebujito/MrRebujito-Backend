@@ -6,10 +6,16 @@ import jakarta.validation.constraints.NotBlank;
 public class Administrador extends Actor {
 	
 	  @NotBlank
-	    private String primerApellido;
+	  private String primerApellido;
 
-	  @NotBlank
-	    private String segundoApellido;
+	 
+	  private String segundoApellido;
+	  
+	  
+
+	  public Administrador() {
+		super();
+	}
 
 	  public Administrador(@NotBlank String nombre, String foto, @NotBlank String correo, String telefono, String direccion, 
               @NotBlank String primerApellido, @NotBlank String segundoApellido) {
