@@ -2,10 +2,11 @@ package mrRebujito.MrRebujito.service;
 
 import java.util.List;
 import java.util.Optional;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
 import mrRebujito.MrRebujito.entity.Ayuntamiento;
-import mrRebujito.MrRebujito.entity.Socio;
 import mrRebujito.MrRebujito.repository.AyuntamientoRepository;
 
 @Service
@@ -33,6 +34,11 @@ public class AyuntamientoService {
 		if(opAyuntamiento.isPresent()) {
 			//Si existe te guarda el ayuntamiento y se hacen los cambios
 			Ayuntamiento soc = opAyuntamiento.get();
+			soc.setNombre(ayuntamiento.getNombre());
+			soc.setFoto(ayuntamiento.getFoto());
+			soc.setCorreo(ayuntamiento.getCorreo());
+			soc.setTelefono(ayuntamiento.getTelefono());
+			soc.setDireccion(ayuntamiento.getDireccion());
 			soc.setLicenciaMax(ayuntamiento.getLicenciaMax());
 			//Te devuelve el socio guardado
 			return save(soc);
