@@ -123,4 +123,64 @@ public class CasetaController {
             response.getWriter().println("Caseta no encontrada");
         }
     }
+    
+    //Métodos para las relaciones
+    
+    @PostMapping("/{casetaId}/solicitud/{ayuntamientoId}")
+    @Operation(summary = "Crear una solicitud de licencia", description = "La caseta realiza una solicitud de licencia a un ayuntamiento.")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "Solicitud creada correctamente"),
+        @ApiResponse(responseCode = "400", description = "Error al crear la solicitud")
+    })
+    public ResponseEntity<String> crearSolicitud(
+    		@PathVariable int casetaId,
+    		@PathVariable int ayuntamientoId) {
+    	try {
+    		casetaService.crearSolicitud(casetaId, ayuntamientoId);
+    		return ResponseEntity.ok("Solicitud creada correctamente y añadida a la caseta.");
+    		} catch (IllegalStateException e) {
+    			// Capturamos el error de la regla de negocio (ya existe una solicitud/licencia)
+    			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+    			} catch (RuntimeException e) {
+    				// Capturamos errores de datos (Caseta/Ayuntamiento no encontrado)
+    				return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+    				}
+    }
+    
+    @PostMapping("/{socioId}/añadirSocio/{casetaId}")
+    @Operation(summary = "Añade un socio a la caseta", description = "La caseta introduce un socio")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "Socio añadido correctamente"),
+        @ApiResponse(responseCode = "400", description = "Error al añadir al socio")
+    })
+    public ResponseEntity<String> addSocio(
+            @PathVariable int socioId,
+            @PathVariable int casetaId) {
+
+        try {
+        	casetaService.addSocio(casetaId, socioId);
+            return ResponseEntity.ok("Socio añadido correctamente");
+        } catch (RuntimeException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("No se pudo añadir al socio correctamente");
+        }
+    }
+    
+    @PostMapping("/{productoId}/añadirProducto/{casetaId}")
+    @Operation(summary = "Añade un producto a la caseta", description = "La caseta añade un producto")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "Producto añadido correctamente"),
+        @ApiResponse(responseCode = "400", description = "Error al añadir al socio")
+    })
+    public ResponseEntity<String> addProducto(
+            @PathVariable int productoId,
+            @PathVariable int casetaId) {
+
+        try {
+        	casetaService.addProducto(casetaId, productoId);
+            return ResponseEntity.ok("Producto añadido correctamente");
+        } catch (RuntimeException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("No se pudo añadir el producto correctamente");
+        }
+    }
+    
 }

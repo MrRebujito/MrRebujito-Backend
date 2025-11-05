@@ -33,10 +33,15 @@ public class AdministradorController {
 	@GetMapping
 	@Operation(summary = "Obtener todos los administradores", description = "Devuelve todos los administradores registrados")
 	@ApiResponses(value = { 
-			@ApiResponse(responseCode = "200", description = "Lista de administradores obtenida exitosamente") 
+			@ApiResponse(responseCode = "200", description = "Lista de administradores obtenida exitosamente"),
+			@ApiResponse(responseCode = "400", description = "No se pudo obtener la lista de administradores")
 	})
 	public ResponseEntity<List<Administrador>> findAll() {
-		return ResponseEntity.ok(administradorService.findAll());
+		List<Administrador> admins = administradorService.findAll();
+		if (admins.isEmpty()) {
+			return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
+		}
+		return ResponseEntity.ok(admins);
 	}
 
 	@GetMapping("/{id}")

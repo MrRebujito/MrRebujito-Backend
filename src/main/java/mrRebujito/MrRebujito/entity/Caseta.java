@@ -107,6 +107,9 @@ public class Caseta extends Actor{
 	public void setProductos(List<Producto> productos) {
 		this.productos = productos;
 	}
+	
+	
+	
 	//Métodos auxiliares add y remove
 	
 	 public void addSolicitud(SolicitudLicencia solicitud) {

@@ -20,7 +20,6 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import mrRebujito.MrRebujito.entity.Ayuntamiento;
-import mrRebujito.MrRebujito.entity.Socio;
 import mrRebujito.MrRebujito.service.AyuntamientoService;
 
 //Permite realizar las operaciones GET, POST, PUT, DELETE a través de HTTP
@@ -37,11 +36,10 @@ public class AyuntamientoController {
 	private AyuntamientoService ayuntamientoService;
 	
 	@GetMapping
-	
 	@Operation(summary = "Obtener todos los ayuntamientos", description = "Te devuelve todos los ayuntamientos")
-	
-	@ApiResponses(value = { @ApiResponse(responseCode = "200", description = "Lista de ayuntamientos obtenida exitosamente") })
-	
+	@ApiResponses(value = { 
+			@ApiResponse(responseCode = "200", description = "Lista de ayuntamientos obtenida exitosamente") 
+			})
 	public ResponseEntity<List<Ayuntamiento>> findAll() {
 		return ResponseEntity.ok(ayuntamientoService.findAll());
 	}
@@ -88,13 +86,9 @@ public class AyuntamientoController {
 			@ApiResponse(responseCode = "500", description = "Error interno del servidor al actualizar el ayuntamiento") 
 	})
 		public ResponseEntity<String> update(@PathVariable int id, @RequestBody Ayuntamiento ayun) {
-			
 			if (ayuntamientoService.update(id, ayun) == null) {
-				
 				return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Ayuntamiento no encontrado");
-				
 			} else {
-				
 				return ResponseEntity.status(HttpStatus.OK).body("Ayuntamiento actualizado correctamente");
 			}
 		}
@@ -110,9 +104,7 @@ public class AyuntamientoController {
 		
 		if (opAyuntamiento.isPresent()) {
 			ayuntamientoService.delete(id);
-			
 			return ResponseEntity.status(HttpStatus.OK).body("Ayuntamieto eliminado correctamente");
-			
 		} else {
 			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Ayuntamieto no encontrado");
 		}

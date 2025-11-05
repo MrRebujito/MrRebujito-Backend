@@ -19,9 +19,8 @@ import io.swagger.v3.oas.annotations.parameters.RequestBody;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import mrRebujito.MrRebujito.service.SocioService;
-import mrRebujito.MrRebujito.entity.Caseta;
 import mrRebujito.MrRebujito.entity.Socio;
+import mrRebujito.MrRebujito.service.SocioService;
 
 //Permite realizar las operaciones GET, POST, PUT, DELETE a través de HTTP
 @RestController
@@ -125,23 +124,5 @@ public class SocioController {
 	}
 
 	
-	@GetMapping("/{id}/casetas")
-	@Operation(summary = "Obtener casetas de un socio", description = "Devuelve todas las casetas a las que pertenece un socio")
-	@ApiResponses(value = { 
-			@ApiResponse(responseCode = "200", description = "Lista de casetas obtenida correctamente"),
-			@ApiResponse(responseCode = "400", description = "Socio no encontrado")
-	})
-	public ResponseEntity<List<Caseta>> getCasetasBySocio(@PathVariable int id) {
-	    Optional<Socio> opSocio = socioService.findById(id);
-	    
-	    //Si el socio existe
-	    if (opSocio.isPresent()) {
-	        List<Caseta> casetas = socioService.getCasetasBySocio(id);
-	        return ResponseEntity.ok(casetas); //Devolvemos 200 OK con la lista de casetas
-	    } 
-	    //Si el socio no existe
-	    else {
-	        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null); //Devolvemos 400 ERROR
-	    }
-	}
+	
 }
