@@ -1,10 +1,7 @@
 package mrRebujito.MrRebujito.entity;
 
 import jakarta.persistence.Entity;
-import jakarta.persistence.ManyToMany;
 import jakarta.validation.constraints.NotBlank;
-import java.util.ArrayList;
-import java.util.List;
 
 @Entity
 public class Socio extends Actor {
@@ -12,13 +9,10 @@ public class Socio extends Actor {
     @NotBlank
     private String primerApellido;
 
-    @NotBlank
+    
     private String segundoApellido;
 
     
-    //Relación many to many con caseta
-    @ManyToMany(mappedBy = "socios")
-    private List<Caseta> casetas = new ArrayList<>();
 
     //Constructores 
     public Socio() {
@@ -26,7 +20,7 @@ public class Socio extends Actor {
     }
 
     public Socio(@NotBlank String nombre, String foto, @NotBlank String correo, String telefono, String direccion, 
-                @NotBlank String primerApellido, @NotBlank String segundoApellido) {
+                @NotBlank String primerApellido, String segundoApellido) {
         super(nombre, foto, correo, telefono, direccion);
         this.primerApellido = primerApellido;
         this.segundoApellido = segundoApellido;
@@ -53,12 +47,4 @@ public class Socio extends Actor {
     }
 
     
-    public List<Caseta> getCasetas() {
-        return casetas;
-    }
-
-    
-    public void setCasetas(List<Caseta> casetas) {
-        this.casetas = casetas;
-    }
 }
