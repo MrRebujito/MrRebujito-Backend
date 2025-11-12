@@ -46,7 +46,17 @@ public class SocioController {
 	
 	//Método para devolver todos los socios 
 	public ResponseEntity<List<Socio>> findAll() {
-		return ResponseEntity.ok(socioService.findAll());
+		
+		List<Socio> socios = socioService.findAll();
+		
+		if (socios != null && !socios.isEmpty()) {
+			
+			return ResponseEntity.ok(socios);
+			
+		} else {
+			
+			return ResponseEntity.status(HttpStatus.NO_CONTENT).body(socios);
+		}
 	}
 	
 	@GetMapping("/{id}")
@@ -62,7 +72,9 @@ public class SocioController {
 	    
 	    //Si el Optional contiene un socio
 	    if (opSocio.isPresent()) {
+	    	
 	        Socio socio = opSocio.get();  
+	        
 	        return ResponseEntity.ok(socio); //Devolvemos 200 OK con el socio
 	    } 
 	    //Si el Optional está vacío (no encontró el socio)
@@ -80,8 +92,17 @@ public class SocioController {
 	})
 	//Método para guardar socio
 	public ResponseEntity<String> save(@RequestBody Socio soc) {
-		socioService.save(soc);
-		return ResponseEntity.status(HttpStatus.OK).body("Socio creado correctamente");
+		
+		if (soc != null && soc.getNombre() != null && !soc.getNombre().isEmpty()) {
+			
+			socioService.save(soc);
+			
+			return ResponseEntity.status(HttpStatus.OK).body("Socio creado correctamente");
+			
+		} else {
+			
+			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Datos del socio inválidos");
+		}
 	}
 	
 	
@@ -93,6 +114,11 @@ public class SocioController {
 			@ApiResponse(responseCode = "500", description = "Error interno del servidor al actualizar el socio") 
 	})
 	public ResponseEntity<String> update(@PathVariable int id, @RequestBody Socio soc) {
+		
+		if (soc == null || soc.getNombre() == null || soc.getNombre().isEmpty()) {
+			
+			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Datos del socio inválidos");
+		}
 		
 		if (socioService.update(id, soc) == null) {
 			
@@ -122,7 +148,4 @@ public class SocioController {
 			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Socio no encontrado");
 		}
 	}
-
-	
-	
 }
