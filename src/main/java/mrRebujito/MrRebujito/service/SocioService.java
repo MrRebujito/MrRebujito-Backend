@@ -6,6 +6,9 @@ import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import mrRebujito.MrRebujito.entity.Ayuntamiento;
+import mrRebujito.MrRebujito.entity.Caseta;
+import mrRebujito.MrRebujito.entity.Producto;
 import mrRebujito.MrRebujito.entity.Socio;
 import mrRebujito.MrRebujito.repository.SocioRepository;
 
@@ -69,6 +72,28 @@ public class SocioService {
 	//Método para eliminar por id 
 	public void delete(int id) {
 		this.socioRepository.deleteById(id);
+	}
+	
+	
+	//Método para listar y mostrar las casetas a las que pertence el socio
+	public List<Caseta> getCasetasBySocioId(int socioId) {
+		return this.socioRepository.findCasetasBySocioId(socioId);
+	}
+	
+	//Método para listar todos los ayuntamientos
+	public List<Ayuntamiento> findAllAyuntamientos() {
+		return this.socioRepository.findAllAyuntamientos();
+	}
+	
+	//Método para listar todas las casetas junto a sus cartas
+	public List<Caseta> findAllCasetasConProductos() {
+		return this.socioRepository.findAllCasetasConProductos();
+	}
+	
+	
+	//Método para listar los productos de una caseta en específico 
+	public List<Producto> findProductosByCasetaId(int casetaId) {
+		return this.socioRepository.findProductosByCasetaId(casetaId);
 	}
 	
 }
