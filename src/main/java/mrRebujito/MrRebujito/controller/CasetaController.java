@@ -32,9 +32,10 @@ public class CasetaController {
 	private CasetaService casetaService;
 	
 	@GetMapping
-    @Operation(summary = "Obtener todos los préstamos", description = "Devuelve una lista completa de todas las casetas registradas en el sistema.")
+    @Operation(summary = "Obtener todas las casetas", description = "Devuelve una lista completa de todas las casetas registradas en el sistema.")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Lista de casetas obtenida correctamente")
+            @ApiResponse(responseCode = "200", description = "Lista de casetas obtenida correctamente"),
+            @ApiResponse(responseCode = "400", description = "Error: No se ha podido obtener la lista de casetas")
     })
 	public ResponseEntity<List<Caseta>> findAll() {
 		return ResponseEntity.ok(casetaService.findAll());
@@ -42,10 +43,10 @@ public class CasetaController {
 	
 	
 	@GetMapping("/{id}")
-	@Operation(summary = "Buscar caseta por Id")
+	@Operation(summary = "Buscar caseta por Id", description = "Busca una caseta específica utilizando su ID.")
 	@ApiResponses(value = {
 			@ApiResponse(responseCode = "200", description = "Caseta encontrada"),
-			@ApiResponse(responseCode = "400", description = "Caseta no encontrada")
+			@ApiResponse(responseCode = "400", description = "Error: Caseta no encontrada")
 	})
 	public ResponseEntity<Caseta> findByid(@PathVariable int id) {
 		Optional<Caseta> oCaseta = casetaService.findById(id);
@@ -55,10 +56,10 @@ public class CasetaController {
 	
 	
 	@PostMapping
-	@Operation(summary = "Crear una nueva caseta")
+	@Operation(summary = "Crear una nueva caseta", description = "Nos permite registrar una nueva caseta en la base de datos.")
 	@ApiResponses(value = {
 			@ApiResponse(responseCode = "200", description = "Caseta creada correctamente"),
-			@ApiResponse(responseCode = "500", description = "Error: Se ha producido un error al crear la caseta")
+			@ApiResponse(responseCode = "400", description = "Error: Se ha producido un error al crear la caseta")
 	})
 	public void save(@RequestBody Caseta caseta, HttpServletResponse response) throws IOException {
 		casetaService.save(caseta);
@@ -68,11 +69,11 @@ public class CasetaController {
 	
 	
 	@PutMapping("/{id}")
-    @Operation(summary = "Actualizar una caseta", description = "Actualiza una caseta, validando el aforo.")
+    @Operation(summary = "Actualizar una caseta", description = "Actualiza una caseta, validando que el nuevo aforo no sea menor que los socios actuales.")
     @ApiResponses(value = {
         @ApiResponse(responseCode = "200", description = "Caseta actualizada"),
-        @ApiResponse(responseCode = "400", description = "Caseta no encontrada"),
-        @ApiResponse(responseCode = "410", description = "[ERROR]: El aforo no puede ser menor que el número de socios")
+        @ApiResponse(responseCode = "400", description = "Error: Caseta no encontrada"),
+        @ApiResponse(responseCode = "409", description = "Error: El aforo no puede ser menor que el número de socios")
     })
     public void update(@PathVariable int id, @RequestBody Caseta caseta, HttpServletResponse response) throws IOException {
         
@@ -94,11 +95,11 @@ public class CasetaController {
     }
 
     @DeleteMapping("/{id}")
-    @Operation(summary = "Eliminar una caseta")
+    @Operation(summary = "Eliminar una caseta", description = "Elimina una caseta, solo si no tiene socios inscritos.")
     @ApiResponses(value = {
         @ApiResponse(responseCode = "200", description = "Caseta eliminada"),
-        @ApiResponse(responseCode = "400", description = "Caseta no encontrada"),
-        @ApiResponse(responseCode = "410", description = "Conflicto: No se puede eliminar, tiene socios inscritos")
+        @ApiResponse(responseCode = "400", description = "Error: Caseta no encontrada"),
+        @ApiResponse(responseCode = "409", description = "Error: No se puede eliminar, tiene socios inscritos")
     })
     public void delete(@PathVariable int id, HttpServletResponse response) throws IOException {
         Optional<Caseta> oCaseta = casetaService.findById(id);
