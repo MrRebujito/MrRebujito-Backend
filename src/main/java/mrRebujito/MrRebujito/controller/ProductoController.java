@@ -20,6 +20,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import mrRebujito.MrRebujito.entity.Producto;
+import mrRebujito.MrRebujito.entity.TipoAlimento;
 import mrRebujito.MrRebujito.service.ProductoService;
 
 
@@ -82,10 +83,10 @@ public class ProductoController {
 	})
 	//Método para guardar producto
 	public ResponseEntity<String> save(@RequestBody Producto pro) {
-		if (pro == null || pro.getNombre() == null || pro.getNombre().isEmpty()) {
+		if (pro == null || pro.getNombre() == null || pro.getNombre().isEmpty() || pro.getTipoAlimento() == null) {
 			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Datos del producto inválidos");
 		}
-		
+	
 		productoService.save(pro);
 		return ResponseEntity.status(HttpStatus.CREATED).body("Producto creado correctamente");
 		
