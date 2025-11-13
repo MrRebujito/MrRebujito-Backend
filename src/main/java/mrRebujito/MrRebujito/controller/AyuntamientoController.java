@@ -20,7 +20,11 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import mrRebujito.MrRebujito.entity.Ayuntamiento;
+import mrRebujito.MrRebujito.entity.Caseta;
+import mrRebujito.MrRebujito.entity.EstadoLicencia;
+import mrRebujito.MrRebujito.entity.SolicitudLicencia;
 import mrRebujito.MrRebujito.service.AyuntamientoService;
+import mrRebujito.MrRebujito.service.SolicitudLicenciaService;
 
 //Permite realizar las operaciones GET, POST, PUT, DELETE a través de HTTP
 @RestController
@@ -34,6 +38,8 @@ public class AyuntamientoController {
 
 	@Autowired
 	private AyuntamientoService ayuntamientoService;
+	
+	SolicitudLicenciaService solicitudLicenciaService;
 	
 	@GetMapping
 	@Operation(summary = "Obtener todos los ayuntamientos", description = "Te devuelve todos los ayuntamientos")
@@ -110,6 +116,44 @@ public class AyuntamientoController {
 		} else {
 			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Ayuntamieto no encontrado");
 		}
+	}
+	
+	// Listar todas las solicitudes de este ayuntamiento
+	@GetMapping("/{id}/solicitudes")
+	public ResponseEntity<List<SolicitudLicencia>> listarSolicitudes(@PathVariable int id) {
+	    return ResponseEntity.ok(solicitudLicenciaService.findByAyuntamiento(id));
+	}
+
+	// Ver una solicitud específica
+	@GetMapping("/solicitud/{idSolicitud}")
+	public ResponseEntity<SolicitudLicencia> mostrarSolicitud(@PathVariable int idSolicitud) {
+		Optional<SolicitudLicencia> solicitud = solicitudLicenciaService.findById(idSolicitud);
+	    return solicitud.map(ResponseEntity::ok)
+	                    .orElse(ResponseEntity.status(HttpStatus.NOT_FOUND).build());
+	}
+
+	// Cambiar estado de una solicitud (aceptar o rechazar)
+	@PutMapping("/solicitud/{idSolicitud}/estado/{nuevoEstado}")
+	public ResponseEntity<String> cambiarEstadoSolicitud(
+	        @PathVariable int idSolicitud,
+	        @PathVariable EstadoLicencia nuevoEstado) {
+
+	    SolicitudLicencia solicitud = solicitudLicenciaService.actualizarEstado(idSolicitud, nuevoEstado);
+	    if (solicitud == null) {
+	        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+	                .body("Solicitud no encontrada o no actualizada");
+	    }
+	    return ResponseEntity.ok("Estado actualizado a " + nuevoEstado);
+	}
+
+	// 🔹 4. Listar casetas aprobadas por este ayuntamiento
+	@GetMapping("/{id}/casetas-aprobadas")
+	public ResponseEntity<List<Caseta>> listarCasetasAprobadas(@PathVariable int id) {
+	    List<SolicitudLicencia> solicitudes = solicitudLicenciaService.findAprobadasByAyuntamiento(id);
+	    List<Caseta> casetas = solicitudes.stream()
+	            .map(SolicitudLicencia::getCaseta)
+	            .toList();
+	    return ResponseEntity.ok(casetas);
 	}
 	
 	

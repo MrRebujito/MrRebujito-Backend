@@ -16,6 +16,9 @@ public class SolicitudLicencia extends DomainEntity{
 	@ManyToOne
 	private Ayuntamiento ayuntamiento;
 	
+	@ManyToOne
+	private Caseta caseta;
+	
 	// Constructores, uno vacio y uno completo
 	public SolicitudLicencia() {
 		super();
@@ -45,6 +48,14 @@ public class SolicitudLicencia extends DomainEntity{
 
 	public void setAyuntamiento(Ayuntamiento ayuntamiento) {
 		this.ayuntamiento = ayuntamiento;
+	}
+	
+	public Caseta getCaseta() {
+	    return caseta;
+	}
+
+	public void setCaseta(Caseta caseta) {
+	    this.caseta = caseta;
 	}
 	
 	

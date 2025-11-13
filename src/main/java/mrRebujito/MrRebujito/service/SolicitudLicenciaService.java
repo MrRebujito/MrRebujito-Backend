@@ -75,4 +75,25 @@ public class SolicitudLicenciaService {
 	public void delete(int id) {
 		this.solicitudRepository.deleteById(id);
 	}
+	
+
+    public List<SolicitudLicencia> findByAyuntamiento(int ayuntamientoId) {
+        return solicitudRepository.findByAyuntamientoId(ayuntamientoId);
+    }
+
+    public List<SolicitudLicencia> findAprobadasByAyuntamiento(int ayuntamientoId) {
+        return solicitudRepository.findByAyuntamientoIdAndEstadoLicencia(
+                ayuntamientoId, EstadoLicencia.APROBADA);
+    }
+
+
+    public SolicitudLicencia actualizarEstado(int id, EstadoLicencia nuevoEstado) {
+        Optional<SolicitudLicencia> opSolicitud = solicitudRepository.findById(id);
+        if (opSolicitud.isPresent()) {
+            SolicitudLicencia solicitud = opSolicitud.get();
+            solicitud.setEstadoLicencia(nuevoEstado);
+            return solicitudRepository.save(solicitud);
+        }
+        return null;
+    }
 }
