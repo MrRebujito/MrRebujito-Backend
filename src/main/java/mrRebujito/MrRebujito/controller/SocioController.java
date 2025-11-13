@@ -179,38 +179,5 @@ public class SocioController {
 	}
 	
 	
-	@GetMapping("/caseta/{casetaId}/productos")
-	@Operation(summary = "Listar productos de una caseta", description = "Lista la carta (productos) de una caseta específica")
-	@ApiResponses(value = { 
-		@ApiResponse(responseCode = "200", description = "Lista de productos obtenida exitosamente"),
-		@ApiResponse(responseCode = "204", description = "La caseta no tiene productos"),
-		@ApiResponse(responseCode = "404", description = "Caseta no encontrada")
-	})
-	public ResponseEntity<List<Producto>> listarProductosDeCaseta(@PathVariable int casetaId) {
-		List<Caseta> todasCasetas = socioService.findAllCasetasConProductos();
-		boolean casetaExiste = false;
-		
-		// Recorremos todas las casetas para verificar si existe la caseta con el ID proporcionado
-		for (Caseta caseta : todasCasetas) {
-			
-			if (caseta.getId() == casetaId) {
-				
-				casetaExiste = true;
-				break; //Se sale si se encuentra
-			}
-		}
-		
-		if (!casetaExiste) {
-			return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
-		}
-		
-		List<Producto> productos = socioService.findProductosByCasetaId(casetaId);
-		
-		if (productos != null && !productos.isEmpty()) {
-			return ResponseEntity.ok(productos);
-			
-		} else {
-			return ResponseEntity.status(HttpStatus.NO_CONTENT).body(productos);
-		}
-	}
+
 }

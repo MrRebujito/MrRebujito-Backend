@@ -19,8 +19,6 @@ public interface SocioRepository extends JpaRepository<Socio, Integer>{
 	List<Caseta> findCasetasBySocioId(int socioId);
 	
     
-    //Listar los productos de una caseta en especifico
-    @Query("SELECT p FROM Caseta c JOIN c.productos p WHERE c.id = ?1")
-    List<Producto> findProductosByCasetaId(int casetaId);
+   
     
 }

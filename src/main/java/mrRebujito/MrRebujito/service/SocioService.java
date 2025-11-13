@@ -82,9 +82,6 @@ public class SocioService {
 	
 	
 	
-	//Método para listar los productos de una caseta en específico 
-	public List<Producto> findProductosByCasetaId(int casetaId) {
-		return this.socioRepository.findProductosByCasetaId(casetaId);
-	}
+
 	
 }
