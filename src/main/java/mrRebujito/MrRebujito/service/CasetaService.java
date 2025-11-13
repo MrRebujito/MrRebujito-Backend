@@ -100,53 +100,48 @@ public class CasetaService {
 	
 	//Métodos para las relaciones
 	
-	@Transactional // Aseguramos que la carga de la lista y el guardado son atómicos
-    public SolicitudLicencia crearSolicitud(int casetaId, int ayuntamientoId) {
-        
-        Optional<Caseta> casetaOptional = casetaRepository.findById(casetaId);
-        Optional<Ayuntamiento> ayuntamientoOptional = ayuntamientoService.findById(ayuntamientoId);
+	@Transactional
+	public SolicitudLicencia crearSolicitud(int casetaId, int ayuntamientoId) {
+	    
+	    Optional<Caseta> casetaOptional = casetaRepository.findById(casetaId);
+	    Optional<Ayuntamiento> ayuntamientoOptional = ayuntamientoService.findById(ayuntamientoId);
 
-        if (casetaOptional.isEmpty()) {
-            throw new RuntimeException("Caseta con ID " + casetaId + " no encontrada.");
-        }
-        if (ayuntamientoOptional.isEmpty()) {
-            throw new RuntimeException("Ayuntamiento con ID " + ayuntamientoId + " no encontrado.");
-        }
-        
-        Caseta caseta = casetaOptional.get();
-        Ayuntamiento ayuntamiento = ayuntamientoOptional.get();
+	    // Validar existencia de Caseta y Ayuntamiento
+	    if (casetaOptional.isEmpty() || ayuntamientoOptional.isEmpty()) {
+	        return null; // No se puede crear la solicitud si alguno no existe
+	    }
 
-        // 1. REGLA DE NEGOCIO: Validar Solicitud Pendiente/Activa
-        
-        // Comprobamos si la caseta ya tiene una solicitud (PENDIENTE o APROBADA) para este Ayuntamiento.
-        boolean yaTieneSolicitudActivaOPendiente = caseta.getSolicitudesLicencia().stream()
-            .anyMatch(s -> s.getAyuntamiento().getId() == ayuntamientoId && 
-                           (s.getEstadoLicencia() == EstadoLicencia.PENDIENTE || 
-                            s.getEstadoLicencia() == EstadoLicencia.APROBADA)); // Asegúrate de usar los nombres correctos del Enum
+	    Caseta caseta = casetaOptional.get();
+	    Ayuntamiento ayuntamiento = ayuntamientoOptional.get();
 
-        if (yaTieneSolicitudActivaOPendiente) {
-            String mensaje = String.format(
-                "Error de negocio: La Caseta con ID %d ya tiene una solicitud pendiente o activa con el Ayuntamiento con ID %d.", 
-                casetaId, ayuntamientoId);
-            
-            throw new IllegalStateException(mensaje);
-        }
-        
-        // 2. Creación y Guardado de la Solicitud
-        
-        SolicitudLicencia solicitud = new SolicitudLicencia();
-        solicitud.setAyuntamiento(ayuntamiento);
-        solicitud.setEstadoLicencia(EstadoLicencia.PENDIENTE);
+	    // 1. REGLA DE NEGOCIO: Validar Solicitud Pendiente/Activa
+	    boolean solicitudActivaOPendiente = false;
 
-        // Al ser unidireccional, necesitamos primero guardar la Solicitud para obtener su ID
+	    for (SolicitudLicencia solicitudExistente : caseta.getSolicitudesLicencia()) {
+	        if (solicitudExistente.getAyuntamiento().getId() == ayuntamientoId) {
+	            EstadoLicencia estado = solicitudExistente.getEstadoLicencia();
+	            if (estado == EstadoLicencia.PENDIENTE || estado == EstadoLicencia.APROBADA) {
+	                solicitudActivaOPendiente = true;
+	                break;
+	            }
+	        }
+	    }
 
-        // Añadir la solicitud a la lista de la Caseta (lado dueño de la relación)
-        caseta.getSolicitudesLicencia().add(solicitud);
-        
-       casetaRepository.save(caseta);
+	    // Si ya existe una solicitud activa o pendiente, no creamos una nueva
+	    if (solicitudActivaOPendiente) {
+	        return null;
+	    }
 
-        return solicitud;
-    }
+	    // 2. Creación y Guardado de la nueva Solicitud
+	    SolicitudLicencia solicitud = new SolicitudLicencia();
+	    solicitud.setAyuntamiento(ayuntamiento);
+	    solicitud.setEstadoLicencia(EstadoLicencia.PENDIENTE);
+
+	    caseta.getSolicitudesLicencia().add(solicitud);
+	    casetaRepository.save(caseta);
+
+	    return solicitud;
+	}
 	
 	/**
      * Añade un Socio a una Caseta existente (Relación Unidireccional Caseta --> Socio).

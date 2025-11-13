@@ -18,14 +18,6 @@ public interface SocioRepository extends JpaRepository<Socio, Integer>{
 	@Query("SELECT c FROM Caseta c JOIN c.socios s WHERE s.id = ?1")
 	List<Caseta> findCasetasBySocioId(int socioId);
 	
-    //Consulta para listar todos los ayuntamientos
-    @Query("SELECT a FROM Ayuntamiento a")
-    List<Ayuntamiento> findAllAyuntamientos();
-    
-    //Listar todas las casetas junto a sus cartas. El el distinc se usa para evitar duplicados con el fetch,
-    //el fetch es lo que permite sacar los productos de las casetas en la misma consulta
-    @Query("SELECT DISTINCT c FROM Caseta c LEFT JOIN FETCH c.productos")
-    List<Caseta> findAllCasetasConProductos();
     
     //Listar los productos de una caseta en especifico
     @Query("SELECT p FROM Caseta c JOIN c.productos p WHERE c.id = ?1")

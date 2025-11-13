@@ -178,37 +178,6 @@ public class SocioController {
 	    }
 	}
 	
-	@GetMapping("/ayuntamientos")
-	@Operation(summary = "Listar ayuntamientos", description = "Lista todos los ayuntamientos disponibles")
-	@ApiResponses(value = { 
-		@ApiResponse(responseCode = "200", description = "Lista de ayuntamientos obtenida exitosamente"),
-		@ApiResponse(responseCode = "204", description = "No hay ayuntamientos registrados")
-	})
-	public ResponseEntity<List<Ayuntamiento>> listarAyuntamientos() {
-		List<Ayuntamiento> ayuntamientos = socioService.findAllAyuntamientos();
-		
-		if (ayuntamientos != null && !ayuntamientos.isEmpty()) {
-			return ResponseEntity.ok(ayuntamientos);
-		} else {
-			return ResponseEntity.status(HttpStatus.NO_CONTENT).body(ayuntamientos);
-		}
-	}
-	
-	@GetMapping("/casetas-con-carta")
-	@Operation(summary = "Listar casetas con sus cartas", description = "Lista todas las casetas y sus productos (cartas)")
-	@ApiResponses(value = { 
-		@ApiResponse(responseCode = "200", description = "Lista de casetas con cartas obtenida exitosamente"),
-		@ApiResponse(responseCode = "204", description = "No hay casetas registradas")
-	})
-	public ResponseEntity<List<Caseta>> listarCasetasConCarta() {
-		List<Caseta> casetas = socioService.findAllCasetasConProductos();
-		
-		if (casetas != null && !casetas.isEmpty()) {
-			return ResponseEntity.ok(casetas);
-		} else {
-			return ResponseEntity.status(HttpStatus.NO_CONTENT).body(casetas);
-		}
-	}
 	
 	@GetMapping("/caseta/{casetaId}/productos")
 	@Operation(summary = "Listar productos de una caseta", description = "Lista la carta (productos) de una caseta específica")

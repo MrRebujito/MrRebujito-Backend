@@ -80,15 +80,6 @@ public class SocioService {
 		return this.socioRepository.findCasetasBySocioId(socioId);
 	}
 	
-	//Método para listar todos los ayuntamientos
-	public List<Ayuntamiento> findAllAyuntamientos() {
-		return this.socioRepository.findAllAyuntamientos();
-	}
-	
-	//Método para listar todas las casetas junto a sus cartas
-	public List<Caseta> findAllCasetasConProductos() {
-		return this.socioRepository.findAllCasetasConProductos();
-	}
 	
 	
 	//Método para listar los productos de una caseta en específico 
