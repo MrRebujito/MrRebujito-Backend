@@ -147,7 +147,7 @@ public class CasetaController {
     				}
     }
     
-    @PostMapping("/{socioId}/añadirSocio/{casetaId}")
+    @PostMapping("/{socioId}/anadirSocio/{casetaId}")
     @Operation(summary = "Añade un socio a la caseta", description = "La caseta introduce un socio")
     @ApiResponses(value = {
         @ApiResponse(responseCode = "200", description = "Socio añadido correctamente"),
@@ -165,7 +165,7 @@ public class CasetaController {
         }
     }
     
-    @PostMapping("/{productoId}/añadirProducto/{casetaId}")
+    @PostMapping("/{productoId}/anadirProducto/{casetaId}")
     @Operation(summary = "Añade un producto a la caseta", description = "La caseta añade un producto")
     @ApiResponses(value = {
         @ApiResponse(responseCode = "200", description = "Producto añadido correctamente"),
