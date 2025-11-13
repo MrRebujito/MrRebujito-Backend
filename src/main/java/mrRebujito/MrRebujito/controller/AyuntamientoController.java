@@ -74,7 +74,9 @@ public class AyuntamientoController {
 	})
 	//Método para guardar Ayuntamiento
 		public ResponseEntity<String> save(@RequestBody Ayuntamiento ayun) {
-			ayuntamientoService.save(ayun);
+			if (ayuntamientoService.save(ayun)==null) {
+				return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Ayuntamiento no creado correctamente");
+			}
 			return ResponseEntity.status(HttpStatus.OK).body("Ayuntamiento creado correctamente");
 		}
 	
