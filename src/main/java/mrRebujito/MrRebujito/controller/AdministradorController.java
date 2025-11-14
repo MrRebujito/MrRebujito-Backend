@@ -67,7 +67,7 @@ public class AdministradorController {
 			@ApiResponse(responseCode = "500", description = "Error interno al crear el administrador") })
 	public ResponseEntity<String> save(@RequestBody Administrador administrador) {
 		String foto = administrador.getFoto();
-		if (foto == null || !foto.matches("^(http|https)://.*$")) {
+		if (foto == null || !foto.matches("^(https?):/?/?[^.]+\\.[^.]+\\.[^.]+$")) {
 			return ResponseEntity.badRequest().body("La foto debe ser un enlace válido");
 		}
 		

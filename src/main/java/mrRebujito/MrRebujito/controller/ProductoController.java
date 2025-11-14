@@ -54,7 +54,7 @@ public class ProductoController {
 	@Operation(summary = "Buscar producto por id", description = "Busca un producto específico utilizando su id")
 	@ApiResponses(value = { 
 			@ApiResponse(responseCode = "200", description = "Producto encontrado"),
-			@ApiResponse(responseCode = "404", description = "Producto no encontrado", content = @Content) })
+			@ApiResponse(responseCode = "400", description = "Producto no encontrado", content = @Content) })
 
 	// Método que te devuelve un producto
 	public ResponseEntity<Producto> findById(@PathVariable int id) {
