@@ -5,6 +5,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import mrRebujito.MrRebujito.entity.EstadoLicencia;
 import mrRebujito.MrRebujito.entity.SolicitudLicencia;
 
 @Repository
@@ -15,5 +16,7 @@ public interface SolicitudLicenciaRepository extends JpaRepository<SolicitudLice
     @Query("SELECT COUNT(s) FROM SolicitudLicencia s " +
            "WHERE s.ayuntamiento.id = :ayuntamientoId AND s.estadoLicencia = 'APROBADA'")
     long countApprovedLicensesByAyuntamiento(@Param("ayuntamientoId") int ayuntamientoId);
-
+    
+    @Query("SELECT COUNT(s) FROM SolicitudLicencia s WHERE s.ayuntamiento.id = :id AND s.estadoLicencia = :estado")
+    int countAprobadasByAyuntamientoId(@Param("id") int id, @Param("estado") EstadoLicencia estado);
 }

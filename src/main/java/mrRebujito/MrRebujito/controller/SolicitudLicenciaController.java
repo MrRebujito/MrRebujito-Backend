@@ -33,21 +33,31 @@ public class SolicitudLicenciaController {
     @Operation(summary = "Obtener todas las solicitudLicencias", description = "Devuelve una lista completa de todos las solicitudLicencias registrados en el sistema.")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Lista de solicitudLicencias obtenida correctamente"),
-            @ApiResponse(responseCode = "400", description = "Error: No se ha podido obtener la lista de solicitudLicencias.")
+            @ApiResponse(responseCode = "404", description = "Error: No se ha podido obtener la lista de solicitudLicencias.")
     })
     public ResponseEntity<List<SolicitudLicencia>> findAll() {
-        return ResponseEntity.ok(solicitudLicenciaService.findAll());
+        List<SolicitudLicencia> solicitudes = solicitudLicenciaService.findAll();
+		if (solicitudes.isEmpty()) {
+			return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
+		}
+		return ResponseEntity.ok(solicitudes);
     }
 
     @GetMapping("/{id}")
     @Operation(summary = "Buscar solicitudLicencia por ID", description = "Busca una solicitudLicencia específico utilizando su ID.")
     @ApiResponses(value = { 
             @ApiResponse(responseCode = "200", description = "SolicitudLicencia encontrado"),
-            @ApiResponse(responseCode = "400", description = "SolicitudLicencia no encontrado")
+            @ApiResponse(responseCode = "404", description = "SolicitudLicencia no encontrado")
     })
     public ResponseEntity<SolicitudLicencia> findById(@PathVariable int id) {
         Optional<SolicitudLicencia> oSolicitudLicencia = solicitudLicenciaService.findById(id);
-        return oSolicitudLicencia.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null));
+        
+		if (oSolicitudLicencia.isPresent()) {
+			SolicitudLicencia administrador = oSolicitudLicencia.get();
+			return ResponseEntity.ok(administrador);
+		} else {
+			return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
+		}
     }
 
    
