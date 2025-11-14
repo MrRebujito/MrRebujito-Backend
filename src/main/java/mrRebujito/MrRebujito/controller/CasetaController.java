@@ -68,7 +68,7 @@ public class CasetaController {
 			@ApiResponse(responseCode = "500", description = "Error: Se ha producido un error al crear la caseta") })
 	public ResponseEntity<String> save(@RequestBody Caseta caseta) throws IOException {
 		String foto = caseta.getFoto();
-		if (foto == null || !foto.matches("^(http|https)://.*$")) {
+		if (foto == null || !foto.matches("^(https?):/?/?[^.]+\\.[^.]+\\.[^.]+$")) {
 			return ResponseEntity.badRequest().body("La foto debe ser un enlace válido");
 		}
 		try {

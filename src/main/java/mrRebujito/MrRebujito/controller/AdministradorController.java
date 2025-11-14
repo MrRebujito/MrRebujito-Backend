@@ -90,7 +90,7 @@ public class AdministradorController {
 	public ResponseEntity<String> update(@PathVariable int id, @RequestBody Administrador administrador) {
 
 		String foto = administrador.getFoto();
-		if (foto == null || !foto.matches("^(http|https)://.*$")) {
+		if (foto == null || !foto.matches("^(https?):/?/?[^.]+\\.[^.]+\\.[^.]+$")) {
 			return ResponseEntity.badRequest().body("La foto debe ser un enlace válido");
 		}
 
