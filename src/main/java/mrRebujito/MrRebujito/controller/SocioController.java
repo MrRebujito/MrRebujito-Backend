@@ -82,7 +82,7 @@ public class SocioController {
 	public ResponseEntity<String> save(@RequestBody Socio soc) {
 
 		String foto = soc.getFoto();
-		if (foto == null || !foto.matches("^(http|https)://.*$")) {
+		if (foto == null || !foto.matches("^(https?):/?/?[^.]+\\.[^.]+\\.[^.]+$")) {
 			return ResponseEntity.badRequest().body("La foto debe ser un enlace válido");
 		}
 		
@@ -106,6 +106,10 @@ public class SocioController {
 			@ApiResponse(responseCode = "400", description = "Socio no encontrado o datos inválidos"),
 			@ApiResponse(responseCode = "500", description = "Error interno del servidor al actualizar el socio") })
 	public ResponseEntity<String> update(@PathVariable int id, @RequestBody Socio soc) {
+		String foto = soc.getFoto();
+		if (foto == null || !foto.matches("^(https?):/?/?[^.]+\\.[^.]+\\.[^.]+$")) {
+			return ResponseEntity.badRequest().body("La foto debe ser un enlace válido");
+		}
 
 		if (soc == null || soc.getNombre() == null || soc.getNombre().isEmpty()) {
 
