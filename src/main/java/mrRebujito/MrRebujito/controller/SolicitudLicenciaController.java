@@ -32,7 +32,8 @@ public class SolicitudLicenciaController {
 	@GetMapping
     @Operation(summary = "Obtener todas las solicitudLicencias", description = "Devuelve una lista completa de todos las solicitudLicencias registrados en el sistema.")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Lista de solicitudLicencias obtenida correctamente")
+            @ApiResponse(responseCode = "200", description = "Lista de solicitudLicencias obtenida correctamente"),
+            @ApiResponse(responseCode = "400", description = "Error: No se ha podido obtener la lista de solicitudLicencias.")
     })
     public ResponseEntity<List<SolicitudLicencia>> findAll() {
         return ResponseEntity.ok(solicitudLicenciaService.findAll());
@@ -54,8 +55,8 @@ public class SolicitudLicenciaController {
     @Operation(summary = "Actualizar una solicitudLicencia", description = "Actualiza la información de una solicitudLicencia existente según su ID.")
     @ApiResponses(value = { 
             @ApiResponse(responseCode = "200", description = "SolicitudLicencia actualizada correctamente"),
-            @ApiResponse(responseCode = "400", description = "SolicitudLicencia no encontrada o datos inválidos"),
-            @ApiResponse(responseCode = "500", description = "Error interno del servidor al actualizar la solicitudLicencia") 
+            @ApiResponse(responseCode = "400", description = "Error: SolicitudLicencia no encontrada o datos inválidos"),
+            @ApiResponse(responseCode = "409", description = "Error: Se ha producido un error interno del servidor al actualizar la solicitudLicencia") 
     })
     public ResponseEntity<String> update(@PathVariable int id, @RequestBody SolicitudLicencia solicitudLicencia) {
     	try {
@@ -74,7 +75,7 @@ public class SolicitudLicenciaController {
     @Operation(summary = "Eliminar una solicitudLicencia", description = "Elimina una solicitudLicencia existente de la base de datos utilizando su ID.")
     @ApiResponses(value = { 
             @ApiResponse(responseCode = "200", description = "SolicitudLicencia eliminado correctamente"),
-            @ApiResponse(responseCode = "400", description = "SolicitudLicencia no encontrado") 
+            @ApiResponse(responseCode = "400", description = "Error: SolicitudLicencia no encontrado") 
     })
     public ResponseEntity<String> delete(@PathVariable int id) {
         Optional<SolicitudLicencia> oSolicitudLicencia = solicitudLicenciaService.findById(id);
