@@ -121,7 +121,7 @@ public class ProductoController {
 		if (opProducto.isPresent()) {
 			productoService.deleteById(id);
 
-			return ResponseEntity.status(HttpStatus.NO_CONTENT).body(null);
+			return ResponseEntity.status(HttpStatus.OK).body("Producto eliminado con exito");
 
 		} else {
 			return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Producto no encontrado");
