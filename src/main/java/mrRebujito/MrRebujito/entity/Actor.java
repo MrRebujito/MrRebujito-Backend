@@ -31,8 +31,7 @@ public abstract class Actor extends DomainEntity{
 		super();
 	}
 
-	public Actor(@NotBlank String nombre, String foto, @NotBlank @Pattern(regexp = "^\\w[@]\\w[.]\\w$") String correo,
-			@Pattern(regexp = "^[6-9][0-9][8]$") String telefono, String direccion) {
+	public Actor(String nombre, String foto, String correo,String telefono, String direccion) {
 		super();
 		this.nombre = nombre;
 		this.foto = foto;
