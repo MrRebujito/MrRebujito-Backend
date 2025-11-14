@@ -75,7 +75,7 @@ public class AyuntamientoController {
 	// Método para guardar Ayuntamiento
 	public ResponseEntity<String> save(@RequestBody Ayuntamiento ayun) {
 		String foto = ayun.getFoto();
-		if (foto == null || !foto.matches("^(http|https)://.*$")) {
+		if (foto == null || !foto.matches("^(https?):/?/?[^.]+\\.[^.]+\\.[^.]+$")) {
 			return ResponseEntity.badRequest().body("La foto debe ser un enlace válido");
 		}
 		
@@ -96,17 +96,22 @@ public class AyuntamientoController {
 			@ApiResponse(responseCode = "400", description = "Ayuntamiento no encontrado o datos inválidos"),
 			@ApiResponse(responseCode = "500", description = "Error interno del servidor al actualizar el ayuntamiento") })
 	public ResponseEntity<String> update(@PathVariable int id, @RequestBody Ayuntamiento ayun) {
-		String foto = ayun.getFoto();
-		if (foto == null || !foto.matches("^(http|https)://.*$")) {
-			return ResponseEntity.badRequest().body("La foto debe ser un enlace válido");
-		}
-		
-		
-		if (ayuntamientoService.update(id, ayun) == null) {
-			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Ayuntamiento no encontrado");
-		} else {
-			return ResponseEntity.status(HttpStatus.OK).body("Ayuntamiento actualizado correctamente");
-		}
+		try {
+			String foto = ayun.getFoto();
+			if (foto == null || !foto.matches("^(https?):/?/?[^.]+\\.[^.]+\\.[^.]+$")) {
+				return ResponseEntity.badRequest().body("La foto debe ser un enlace válido");
+			}
+			
+			
+			if (ayuntamientoService.update(id, ayun) == null) {
+				return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Ayuntamiento no encontrado");
+			} else {
+				return ResponseEntity.status(HttpStatus.OK).body("Ayuntamiento actualizado correctamente");
+			}
+		} catch (IllegalArgumentException e) {
+	        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("No se puede actualizar el numero de licencias por debajo de las licencias vigentes");
+	    }
+			
 	}
 
 	@DeleteMapping("/{id}") // Peticiones HTTP DELETE
