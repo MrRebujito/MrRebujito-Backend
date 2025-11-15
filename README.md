@@ -24,12 +24,7 @@ Permite administrar solicitudes, licencias, titulares, ubicaciones y estados de 
 
 ---
 
-## Ejecución del proyecto
 
-### Clonar el repositorio
-```bash
-git clone https://github.com/tu-usuario/MrRebujit.git
-cd MrRebujit
 
 
 
