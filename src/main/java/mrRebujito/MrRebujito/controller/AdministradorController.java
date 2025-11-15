@@ -64,6 +64,7 @@ public class AdministradorController {
 	@Operation(summary = "Crear un nuevo administrador", description = "Registra un nuevo administrador en la base de datos")
 	@ApiResponses(value = { 
 			@ApiResponse(responseCode = "200", description = "Administrador creado correctamente"),
+			@ApiResponse(responseCode = "400", description = "La foto debe ser un enlace válido"),
 			@ApiResponse(responseCode = "500", description = "Error interno al crear el administrador") })
 	public ResponseEntity<String> save(@RequestBody Administrador administrador) {
 		String foto = administrador.getFoto();

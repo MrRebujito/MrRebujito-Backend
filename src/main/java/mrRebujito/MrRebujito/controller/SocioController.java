@@ -77,6 +77,7 @@ public class SocioController {
 	@Operation(summary = "Crear un nuevo socio", description = "Registra un nuevo socio en la base de datos")
 	@ApiResponses(value = { 
 			@ApiResponse(responseCode = "200", description = "Socio creado correctamente"),
+			@ApiResponse(responseCode = "400", description = "La foto debe ser un enlace válido"),
 			@ApiResponse(responseCode = "500", description = "Error interno del servidor al crear el socio") })
 	// Método para guardar socio
 	public ResponseEntity<String> save(@RequestBody Socio soc) {

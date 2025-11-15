@@ -65,6 +65,7 @@ public class CasetaController {
 	@Operation(summary = "Crear una nueva caseta", description = "Nos permite registrar una nueva caseta en la base de datos.")
 	@ApiResponses(value = { 
 			@ApiResponse(responseCode = "200", description = "Caseta creada correctamente"),
+			@ApiResponse(responseCode = "400", description = "La foto debe ser un enlace válido"),
 			@ApiResponse(responseCode = "500", description = "Error: Se ha producido un error al crear la caseta") })
 	public ResponseEntity<String> save(@RequestBody Caseta caseta) throws IOException {
 		String foto = caseta.getFoto();

@@ -72,6 +72,7 @@ public class ProductoController {
 	@Operation(summary = "Crear un nuevo producto", description = "Registra un nuevo producto en la base de datos")
 	@ApiResponses(value = { 
 			@ApiResponse(responseCode = "201", description = "Producto creado correctamente"),
+			@ApiResponse(responseCode = "400", description = "La foto debe ser un enlace válido"),
 			@ApiResponse(responseCode = "400", description = "Datos del producto inválidos") })
 	// Método para guardar producto
 	public ResponseEntity<String> save(@RequestBody Producto pro) {

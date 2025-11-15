@@ -71,6 +71,7 @@ public class AyuntamientoController {
 	@Operation(summary = "Crear un nuevo ayuntamiento", description = "Registra un nuevo ayuntamiento en la base de datos")
 	@ApiResponses(value = { 
 			@ApiResponse(responseCode = "200", description = "Ayuntamiento creado correctamente"),
+			@ApiResponse(responseCode = "400", description = "La foto debe ser un enlace válido"),
 			@ApiResponse(responseCode = "500", description = "Error interno del servidor al crear el ayuntamiento") })
 	// Método para guardar Ayuntamiento
 	public ResponseEntity<String> save(@RequestBody Ayuntamiento ayun) {
