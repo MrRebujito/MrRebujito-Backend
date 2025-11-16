@@ -3,6 +3,8 @@
 **MrRebujit** es una API REST desarrollada con **Spring Boot** diseñada para que los ayuntamientos gestionen de forma eficiente las licencias de casetas en ferias y eventos.  
 Permite administrar solicitudes, licencias, titulares, ubicaciones y estados de manera clara y automatizada.
 
+**Postman:**<a>https://caos1234matao-4414147.postman.co/workspace/Caos-1234matao's-Workspace~3d39bbe8-4f36-40e5-825a-7c2d3d1d6b91/collection/49737959-6085bff7-058f-415d-a1d2-33e0c94e34f9?action=share&creator=49737959</a>
+
 ---
 
 ##  Características principales
