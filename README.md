@@ -1,4 +1,4 @@
-# MrRebujit — API de Gestión de Licencias de Casetas
+# MrRebujito — API de Gestión de Licencias de Casetas
 
 **MrRebujito** es una API REST desarrollada con **Spring Boot** diseñada para que los ayuntamientos gestionen de forma eficiente las licencias de casetas en ferias y eventos.  
 Permite administrar solicitudes, licencias, titulares, ubicaciones y estados de manera clara y automatizada.
