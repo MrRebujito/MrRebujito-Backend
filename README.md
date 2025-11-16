@@ -4,6 +4,7 @@
 Permite administrar solicitudes, licencias, titulares, ubicaciones y estados de manera clara y automatizada.
 
 **Postman:**<a>https://caos1234matao-4414147.postman.co/workspace/Caos-1234matao's-Workspace~3d39bbe8-4f36-40e5-825a-7c2d3d1d6b91/collection/49737959-6085bff7-058f-415d-a1d2-33e0c94e34f9?action=share&creator=49737959</a>
+**Trello:**<a>https://trello.com/invite/b/68e56599fc88a337a649e4dd/ATTI618d5033e98d52994f285c4be39de5be5C4D989A/proyecto-mrrebujito</a>
 
 ---
 
