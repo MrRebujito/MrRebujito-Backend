@@ -2,6 +2,7 @@ package mrRebujito.MrRebujito.entity;
 
 import org.hibernate.validator.constraints.URL;
 
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Inheritance;
 import jakarta.persistence.InheritanceType;
@@ -26,18 +27,18 @@ public abstract class Actor extends DomainEntity{
 	private String telefono;
 	
 	private String direccion;
+	
+	@NotBlank
+	@Column(unique = true)
+	private String username;
+
+	@NotBlank
+	private String password;
+
+	private Roles rol;
 
 	public Actor() {
 		super();
-	}
-
-	public Actor(String nombre, String foto, String correo,String telefono, String direccion) {
-		super();
-		this.nombre = nombre;
-		this.foto = foto;
-		this.correo = correo;
-		this.telefono = telefono;
-		this.direccion = direccion;
 	}
 
 	public String getNombre() {
@@ -78,6 +79,30 @@ public abstract class Actor extends DomainEntity{
 
 	public void setDireccion(String direccion) {
 		this.direccion = direccion;
+	}
+
+	public String getUsername() {
+		return username;
+	}
+
+	public void setUsername(String username) {
+		this.username = username;
+	}
+
+	public String getPassword() {
+		return password;
+	}
+
+	public void setPassword(String password) {
+		this.password = password;
+	}
+
+	public Roles getRol() {
+		return rol;
+	}
+
+	public void setRol(Roles rol) {
+		this.rol = rol;
 	}
 
 }
