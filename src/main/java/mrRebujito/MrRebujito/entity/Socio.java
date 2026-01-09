@@ -19,9 +19,8 @@ public class Socio extends Actor {
         super();
     }
 
-    public Socio(@NotBlank String nombre, String foto, @NotBlank String correo, String telefono, String direccion, 
-                @NotBlank String primerApellido, String segundoApellido) {
-        super(nombre, foto, correo, telefono, direccion);
+    public Socio(String primerApellido, String segundoApellido) {
+        super();
         this.primerApellido = primerApellido;
         this.segundoApellido = segundoApellido;
     }

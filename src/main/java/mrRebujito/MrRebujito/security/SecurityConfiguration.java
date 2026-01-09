@@ -75,10 +75,10 @@ public class SecurityConfiguration {
 				.requestMatchers(HttpMethod.GET, "/caseta/carta").hasAuthority("CASETA")
 				
 				// SOCIO
-				.requestMatchers(HttpMethod.POST, "/socios").permitAll()
-				.requestMatchers(HttpMethod.PUT, "/socios").hasAuthority("SOCIO")
-				.requestMatchers(HttpMethod.DELETE, "/socios").hasAuthority("SOCIO")
-				.requestMatchers(HttpMethod.GET, "/socios/misCasetas").hasAuthority("SOCIO")
+				.requestMatchers(HttpMethod.POST, "/socio").permitAll()
+				.requestMatchers(HttpMethod.PUT, "/socio").hasAuthority("SOCIO")
+				.requestMatchers(HttpMethod.DELETE, "/socio").hasAuthority("SOCIO")
+				.requestMatchers(HttpMethod.GET, "/socio/misCasetas").hasAuthority("SOCIO")
 				
 				// ADMIN
 				.requestMatchers("/admin").hasAuthority("ADMIN")
