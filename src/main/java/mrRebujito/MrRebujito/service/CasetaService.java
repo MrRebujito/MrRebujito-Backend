@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import jakarta.transaction.Transactional;
@@ -11,6 +12,7 @@ import mrRebujito.MrRebujito.entity.Ayuntamiento;
 import mrRebujito.MrRebujito.entity.Caseta;
 import mrRebujito.MrRebujito.entity.EstadoLicencia;
 import mrRebujito.MrRebujito.entity.Producto;
+import mrRebujito.MrRebujito.entity.Roles;
 import mrRebujito.MrRebujito.entity.Socio;
 import mrRebujito.MrRebujito.entity.SolicitudLicencia;
 import mrRebujito.MrRebujito.repository.CasetaRepository;
@@ -31,6 +33,9 @@ public class CasetaService {
 	@Autowired
     private ProductoService productoService;
 	
+	@Autowired
+	private PasswordEncoder passwordEncoder;
+	
 	// Método para obtener una caseta por su ID.
 	public Optional<Caseta> findById(int id) {
 		return this.casetaRepository.findById(id);
@@ -45,6 +50,11 @@ public class CasetaService {
 	
 	// Método para guardar una caseta
 	public Caseta save(Caseta caseta) {
+		String passwordEncriptada = passwordEncoder.encode(caseta.getPassword());
+		caseta.setPassword(passwordEncriptada);
+		
+		caseta.setRol(Roles.CASETA);
+		
 		return casetaRepository.save(caseta);
 	}
 	
