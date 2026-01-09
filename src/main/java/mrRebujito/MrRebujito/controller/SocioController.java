@@ -127,23 +127,29 @@ public class SocioController {
 		}
 	}
 
-	@DeleteMapping("/{id}") // Peticiones HTTP DELETE
-	@Operation(summary = "Eliminar un socio", description = "Elimina un socio existente de la base de datos utilizando su id")
-	@ApiResponses(value = { 
-			@ApiResponse(responseCode = "200", description = "Socio eliminado correctamente"),
-			@ApiResponse(responseCode = "400", description = "Socio no encontrado") })
-	public ResponseEntity<String> delete(@PathVariable int id) {
-		Optional<Socio> opSocio = socioService.findById(id);
+	@DeleteMapping("/{id}") 
+    @Operation(summary = "Eliminar un socio", description = "Elimina un socio existente de la base de datos utilizando su id")
+    @ApiResponses(value = { 
+            @ApiResponse(responseCode = "200", description = "Socio eliminado correctamente"),
+            @ApiResponse(responseCode = "400", description = "Socio no encontrado"),
+            @ApiResponse(responseCode = "409", description = "Conflicto: El socio pertenece a una caseta") }) 
+    public ResponseEntity<String> delete(@PathVariable int id) {
+        Optional<Socio> opSocio = socioService.findById(id);
 
-		if (opSocio.isPresent()) {
-			socioService.delete(id);
-
-			return ResponseEntity.status(HttpStatus.OK).body("Socio eliminado correctamente");
-
-		} else {
-			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Socio no encontrado");
-		}
-	}
+        if (opSocio.isPresent()) {
+            try {
+                
+                socioService.delete(id);
+                return ResponseEntity.status(HttpStatus.OK).body("Socio eliminado correctamente");
+                
+            } catch (IllegalStateException e) {
+                // Devolvemos un 409 CONFLICT porque el estado actual impide la acción
+                return ResponseEntity.status(HttpStatus.CONFLICT).body(e.getMessage());
+            }
+        } else {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Socio no encontrado");
+        }
+    }
 
 	// Requisitos funcionales
 	@GetMapping("/{id}/casetas")
