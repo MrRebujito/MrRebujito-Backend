@@ -10,6 +10,7 @@ import mrRebujito.MrRebujito.entity.Ayuntamiento;
 import mrRebujito.MrRebujito.entity.EstadoLicencia;
 import mrRebujito.MrRebujito.repository.AyuntamientoRepository;
 import mrRebujito.MrRebujito.repository.SolicitudLicenciaRepository;
+import  mrRebujito.MrRebujito.security.JWTUtils;
 
 @Service
 public class AyuntamientoService {
@@ -18,6 +19,13 @@ public class AyuntamientoService {
 	
 	@Autowired 
 	private AyuntamientoRepository ayuntamientoRepository;
+	
+	@Autowired
+	private JWTUtils JWTUtils;
+
+	public Optional<Ayuntamiento> findByUsername(String username) {
+		return ayuntamientoRepository.findByUsername(username);
+	}
 	
 	public Optional<Ayuntamiento> findById(int id){
 		return this.ayuntamientoRepository.findById(id);

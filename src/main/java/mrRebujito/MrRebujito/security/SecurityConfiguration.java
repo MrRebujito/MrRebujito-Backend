@@ -89,6 +89,16 @@ public class SecurityConfiguration {
 				.requestMatchers(HttpMethod.POST, "/ayuntamiento").hasAnyAuthority("ADMIN")
 				.requestMatchers(HttpMethod.PUT, "/ayuntamiento").hasAnyAuthority("AYUNTAMIENTO")
 				.requestMatchers(HttpMethod.DELETE, "/ayuntamiento").hasAuthority("AYUNTAMIENTO")
+				// a) Casetas del ayuntamiento con licencia aprobada
+				.requestMatchers(HttpMethod.GET, "/casetas/ayuntamiento").hasAuthority("AYUNTAMIENTO")
+				.requestMatchers(HttpMethod.GET, "/casetas/ayuntamiento/{id}").hasAuthority("AYUNTAMIENTO")
+
+				// b) Gestión de solicitudes de licencia del ayuntamiento
+				.requestMatchers(HttpMethod.GET, "/licencias/ayuntamiento").hasAuthority("AYUNTAMIENTO")
+				.requestMatchers(HttpMethod.GET, "/licencias/ayuntamiento/{id}").hasAuthority("AYUNTAMIENTO")
+				.requestMatchers(HttpMethod.PUT, "/licencias/{id}/aceptar").hasAuthority("AYUNTAMIENTO")
+				.requestMatchers(HttpMethod.PUT, "/licencias/{id}/rechazar").hasAuthority("AYUNTAMIENTO")
+
 				
 				// SWAGGER
 				.requestMatchers("/swagger-ui/**").permitAll()
