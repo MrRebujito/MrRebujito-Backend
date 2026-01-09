@@ -69,10 +69,19 @@ public class SocioService {
 		
 	}
 	
-	//Método para eliminar por id 
-	public void delete(int id) {
-		this.socioRepository.deleteById(id);
-	}
+	// Método para eliminar por id con restricción lógica
+    public void delete(int id) {
+        // Comprobar si el socio pertenece a alguna caseta
+        List<Caseta> casetasDelSocio = this.getCasetasBySocioId(id);
+        
+        if (casetasDelSocio != null && !casetasDelSocio.isEmpty()) {
+            // Si la lista no está vacía, significa que el socio está activo en alguna caseta
+            throw new IllegalStateException("No se puede eliminar al socio: todavía está inscrito en " + casetasDelSocio.size() + " caseta(s).");
+        }
+
+        // Si no tiene casetas, procedemos al borrado normal
+        this.socioRepository.deleteById(id);
+    }
 	
 	
 	//Método para listar y mostrar las casetas a las que pertence el socio
