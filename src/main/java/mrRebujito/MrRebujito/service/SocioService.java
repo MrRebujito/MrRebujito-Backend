@@ -4,84 +4,106 @@ import java.util.List;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import mrRebujito.MrRebujito.entity.Ayuntamiento;
 import mrRebujito.MrRebujito.entity.Caseta;
-import mrRebujito.MrRebujito.entity.Producto;
+import mrRebujito.MrRebujito.entity.Roles;
 import mrRebujito.MrRebujito.entity.Socio;
 import mrRebujito.MrRebujito.repository.SocioRepository;
+import mrRebujito.MrRebujito.security.JWTUtils;
 
 @Service
 public class SocioService {
 
-	@Autowired 
-	private SocioRepository socioRepository;
+    @Autowired 
+    private SocioRepository socioRepository;
 
-	
-	//Método para obtener un socio
-	//Se le tiene que pasar un id, que es el generado por DomainEntity
-	public Optional<Socio> findById(int id){
-		
-		//Llama al método de socioRepository, viene dado por el Jpa
-		return this.socioRepository.findById(id);
-	}
-	
-	
-	//Método para obtener todos los socios
-	public List<Socio> findAll() {
-		
-		return this.socioRepository.findAll();
-	}
-	
-	//Método para guardar un socio, falta modificarlo para el estado de licencia
-	public Socio save(Socio socio) {
-		return this.socioRepository.save(socio);
-	}
-	
-	
-	//Método para actualizar un socio por id 
-	public Socio update(int idSocio, Socio socio) {
-		
-		//Variable socio optional para encontrar el socio por id
-		Optional<Socio> opSocio= findById(idSocio);
-		
-		//Comprueba si el socio existe
-		if(opSocio.isPresent()) {
-			
-			//Si existe te guarda el socio y se hacen los cambios
-			Socio soc = opSocio.get();
-			
-			soc.setNombre(socio.getNombre());
-			soc.setPrimerApellido(socio.getPrimerApellido());
-			soc.setSegundoApellido(socio.getSegundoApellido());
-			soc.setFoto(socio.getFoto());
-			soc.setCorreo(socio.getCorreo());
-			soc.setDireccion(socio.getDireccion());
-			soc.setTelefono(socio.getTelefono());
-			
-			//Te devuelve el socio guardado
-			return save(soc);
-		}
-		
-		//Si no existe te devuelve null
-		return null;
-		
-	}
-	
-	//Método para eliminar por id 
-	public void delete(int id) {
-		this.socioRepository.deleteById(id);
-	}
-	
-	
-	//Método para listar y mostrar las casetas a las que pertence el socio
-	public List<Caseta> getCasetasBySocioId(int socioId) {
-		return this.socioRepository.findCasetasBySocioId(socioId);
-	}
-	
-	
-	
+    @Autowired
+    private JWTUtils jwtUtils;
+    
+    @Autowired
+    private BCryptPasswordEncoder bCryptPasswordEncoder;
+    
+    // Método para obtener un socio
+    public Optional<Socio> findById(int id){
+        return this.socioRepository.findById(id);
+    }
+    
+    // Método para obtener todos los socios
+    public List<Socio> findAll() {
+        return this.socioRepository.findAll();
+    }
+    
+    // Método para guardar un socio con contraseña encriptada
+    public Socio save(Socio socio) {
+        // Encriptar la contraseña antes de guardar
+        if (socio.getPassword() != null && !socio.getPassword().isEmpty()) {
+            String encryptedPassword = bCryptPasswordEncoder.encode(socio.getPassword());
+            socio.setPassword(encryptedPassword);
+        }
+        
+        // Asignar rol si no está asignado
+        if (socio.getRol() == null) {
+            socio.setRol(Roles.SOCIO);
+        }
+        
+        return this.socioRepository.save(socio);
+    }
+    
+    // Método para actualizar un socio
+    public Socio update(Socio socio) {
+        Socio socioLogin = jwtUtils.userLogin();
+        
+        if(socioLogin != null) {
+            socioLogin.setNombre(socio.getNombre());
+            socioLogin.setPrimerApellido(socio.getPrimerApellido());
+            socioLogin.setSegundoApellido(socio.getSegundoApellido());
+            socioLogin.setFoto(socio.getFoto());
+            socioLogin.setCorreo(socio.getCorreo());
+            socioLogin.setDireccion(socio.getDireccion());
+            socioLogin.setTelefono(socio.getTelefono());
+            
+            // Si se proporciona nueva contraseña, encriptarla
+            if (socio.getPassword() != null && !socio.getPassword().isEmpty()) {
+                String encryptedPassword = bCryptPasswordEncoder.encode(socio.getPassword());
+                socioLogin.setPassword(encryptedPassword);
+            }
+            
+            return save(socioLogin);
+        }
+        
+        return null;
+    }
+    
+    // Método para eliminar el socio logueado
+    public void delete() {
+        Socio socioLogin = jwtUtils.userLogin();
+        
+        if (socioLogin != null) {
+            this.socioRepository.delete(socioLogin);
+        }
+    }
+    
+    
+    // Método para listar las casetas del socio logueado
+    public List<Caseta> getMisCasetas() {
+        Socio socioLogin = jwtUtils.userLogin();
+        
+        if (socioLogin != null) {
+            return this.socioRepository.findCasetasBySocioId(socioLogin.getId());
+        }
+        return null;
+    }
+    
 
-	
+    
+    // Método para obtener el socio logueado
+    public Socio getSocioLogueado() {
+        return jwtUtils.userLogin();
+    }
+    
+    public Optional<Socio> findByUsername(String username){
+        return socioRepository.findByUsername(username);
+    }
 }
