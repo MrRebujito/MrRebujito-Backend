@@ -60,18 +60,17 @@ public class SecurityConfiguration {
 				.requestMatchers(HttpMethod.DELETE, "/solicitud").hasAuthority("CASETA")
 				
 				// CASETA
+				.requestMatchers(HttpMethod.POST, "/caseta/registrar").permitAll()
 				.requestMatchers(HttpMethod.GET, "/caseta").permitAll()
+				.requestMatchers(HttpMethod.GET, "/caseta/listar").permitAll()
 				.requestMatchers(HttpMethod.GET, "/caseta/{id}").permitAll()
 				.requestMatchers(HttpMethod.GET, "/caseta/carta/{id}").permitAll()
+				.requestMatchers(HttpMethod.GET, "/caseta/me").hasAuthority("CASETA")
+				.requestMatchers(HttpMethod.PUT, "/caseta/**").hasAuthority("CASETA")
+				.requestMatchers(HttpMethod.DELETE, "/caseta/**").hasAuthority("CASETA")
 				.requestMatchers(HttpMethod.POST, "/caseta").permitAll()
-				.requestMatchers(HttpMethod.PUT, "/caseta").hasAuthority("CASETA")
-				.requestMatchers(HttpMethod.DELETE, "/caseta").hasAuthority("CASETA")
 				.requestMatchers(HttpMethod.GET, "/caseta/socios").hasAuthority("CASETA")
-				.requestMatchers(HttpMethod.GET, "/caseta/anadirSocio/{id}").hasAuthority("CASETA")
-				.requestMatchers(HttpMethod.GET, "/caseta/eliminarSocio/{id}").hasAuthority("CASETA")
 				.requestMatchers(HttpMethod.POST, "/caseta/carta").hasAuthority("CASETA")
-				.requestMatchers(HttpMethod.PUT, "/caseta/carta/{id}").hasAuthority("CASETA")
-				.requestMatchers(HttpMethod.DELETE, "/caseta").hasAuthority("CASETA")
 				.requestMatchers(HttpMethod.GET, "/caseta/carta").hasAuthority("CASETA")
 				
 				// SOCIO
