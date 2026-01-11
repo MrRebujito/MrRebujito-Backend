@@ -17,13 +17,6 @@ public class Administrador extends Actor {
 		super();
 	}
 
-	  public Administrador(@NotBlank String nombre, String foto, @NotBlank String correo, String telefono, String direccion, 
-              @NotBlank String primerApellido, String segundoApellido) {
-      super(nombre, foto, correo, telefono, direccion);
-      this.primerApellido = primerApellido;
-      this.segundoApellido = segundoApellido;
-	  }
-
 	  public String getPrimerApellido() {
 		  return primerApellido;
 	  }
