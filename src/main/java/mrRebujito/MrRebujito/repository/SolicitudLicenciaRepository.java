@@ -1,10 +1,13 @@
 package mrRebujito.MrRebujito.repository;
 
+import java.util.List;
+
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import mrRebujito.MrRebujito.entity.Ayuntamiento;
 import mrRebujito.MrRebujito.entity.EstadoLicencia;
 import mrRebujito.MrRebujito.entity.SolicitudLicencia;
 
@@ -19,4 +22,6 @@ public interface SolicitudLicenciaRepository extends JpaRepository<SolicitudLice
     
     @Query("SELECT COUNT(s) FROM SolicitudLicencia s WHERE s.ayuntamiento.id = :id AND s.estadoLicencia = :estado")
     int countAprobadasByAyuntamientoId(@Param("id") int id, @Param("estado") EstadoLicencia estado);
+
+	List<SolicitudLicencia> findAllByAyuntamiento(Ayuntamiento ayuntamiento);
 }

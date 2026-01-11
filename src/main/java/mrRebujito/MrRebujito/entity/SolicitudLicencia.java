@@ -21,15 +21,6 @@ public class SolicitudLicencia extends DomainEntity{
 		super();
 	}
 
-
-	public SolicitudLicencia(@NotNull EstadoLicencia estadoLicencia, Ayuntamiento ayuntamiento) {
-		super();
-		this.estadoLicencia = estadoLicencia;
-		this.ayuntamiento = ayuntamiento;
-	}
-
-
-
 	// Generamos los get y set para el atributo de esta tabla
 	public EstadoLicencia getEstadoLicencia() {
 		return estadoLicencia;
@@ -46,7 +37,5 @@ public class SolicitudLicencia extends DomainEntity{
 	public void setAyuntamiento(Ayuntamiento ayuntamiento) {
 		this.ayuntamiento = ayuntamiento;
 	}
-	
-	
 	
 }

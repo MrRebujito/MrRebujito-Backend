@@ -19,12 +19,6 @@ public class Socio extends Actor {
         super();
     }
 
-    public Socio(String primerApellido, String segundoApellido) {
-        super();
-        this.primerApellido = primerApellido;
-        this.segundoApellido = segundoApellido;
-    }
-
     //Getters y setters 
     public String getPrimerApellido() {
         return primerApellido;

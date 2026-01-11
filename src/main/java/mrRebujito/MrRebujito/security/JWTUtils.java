@@ -82,6 +82,8 @@ public class JWTUtils {
         return token;
     }
 	
+	
+	
 	// Obtener el rol a partir del token
 	public static String getRolFromToken(String token) {
 		return Jwts.parser()

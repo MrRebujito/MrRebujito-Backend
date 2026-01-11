@@ -5,8 +5,10 @@ import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import mrRebujito.MrRebujito.entity.Ayuntamiento;
 import mrRebujito.MrRebujito.entity.Caseta;
 import mrRebujito.MrRebujito.entity.Roles;
 import mrRebujito.MrRebujito.entity.Socio;
@@ -22,37 +24,38 @@ public class SocioService {
     @Autowired
     private JWTUtils jwtUtils;
     
-    @Autowired
-    private BCryptPasswordEncoder bCryptPasswordEncoder;
+	@Autowired
+    private PasswordEncoder passwordEncoder;
     
     // Método para obtener un socio
-    public Optional<Socio> findById(int id){
+    public Optional<Socio> findSocioById(int id){
         return this.socioRepository.findById(id);
     }
     
+    public Optional<Socio> findByUsername(String username) {
+		return this.socioRepository.findByUsername(username);
+	}
+    
     // Método para obtener todos los socios
-    public List<Socio> findAll() {
+    public List<Socio> findAllSocios() {
         return this.socioRepository.findAll();
     }
     
     // Método para guardar un socio con contraseña encriptada
-    public Socio save(Socio socio) {
+    public Socio saveSocio(Socio socio) {
         // Encriptar la contraseña antes de guardar
         if (socio.getPassword() != null && !socio.getPassword().isEmpty()) {
-            String encryptedPassword = bCryptPasswordEncoder.encode(socio.getPassword());
+            String encryptedPassword = passwordEncoder.encode(socio.getPassword());
             socio.setPassword(encryptedPassword);
         }
         
-        // Asignar rol si no está asignado
-        if (socio.getRol() == null) {
             socio.setRol(Roles.SOCIO);
-        }
         
         return this.socioRepository.save(socio);
     }
     
     // Método para actualizar un socio
-    public Socio update(Socio socio) {
+    public Socio updateSocio(Socio socio) {
         Socio socioLogin = jwtUtils.userLogin();
         
         if(socioLogin != null) {
@@ -64,25 +67,21 @@ public class SocioService {
             socioLogin.setDireccion(socio.getDireccion());
             socioLogin.setTelefono(socio.getTelefono());
             
-            // Si se proporciona nueva contraseña, encriptarla
-            if (socio.getPassword() != null && !socio.getPassword().isEmpty()) {
-                String encryptedPassword = bCryptPasswordEncoder.encode(socio.getPassword());
-                socioLogin.setPassword(encryptedPassword);
-            }
-            
-            return save(socioLogin);
+            return this.socioRepository.save(socioLogin);
         }
         
         return null;
     }
     
     // Método para eliminar el socio logueado
-    public void delete() {
+    public boolean deleteSocio() {
         Socio socioLogin = jwtUtils.userLogin();
         
         if (socioLogin != null) {
             this.socioRepository.delete(socioLogin);
+            return true;
         }
+        return false;
     }
     
     
@@ -98,12 +97,8 @@ public class SocioService {
     
 
     
-    // Método para obtener el socio logueado
-    public Socio getSocioLogueado() {
-        return jwtUtils.userLogin();
-    }
     
-    public Optional<Socio> findByUsername(String username){
+    public Optional<Socio> findSocioByUsername(String username){
         return socioRepository.findByUsername(username);
     }
 }

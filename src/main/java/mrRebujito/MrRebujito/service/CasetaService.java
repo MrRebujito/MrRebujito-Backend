@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -16,7 +17,7 @@ import mrRebujito.MrRebujito.entity.Roles;
 import mrRebujito.MrRebujito.entity.Socio;
 import mrRebujito.MrRebujito.entity.SolicitudLicencia;
 import mrRebujito.MrRebujito.repository.CasetaRepository;
-
+import mrRebujito.MrRebujito.security.JWTUtils;
 
 @Service
 public class CasetaService {
@@ -34,22 +35,38 @@ public class CasetaService {
     private ProductoService productoService;
 	
 	@Autowired
-	private PasswordEncoder passwordEncoder;
+    private PasswordEncoder passwordEncoder;
+	
+	@Autowired
+	private JWTUtils JWTUtils;
 	
 	// Método para obtener una caseta por su ID.
-	public Optional<Caseta> findById(int id) {
+	public Optional<Caseta> findCasetaById(int id) {
 		return this.casetaRepository.findById(id);
+	}
+	
+	public Optional<Caseta> findByUsername(String username) {
+		return this.casetaRepository.findByUsername(username);
 	}
 	
 	
 	// Método para obtener todas las casetas
-	public List<Caseta> findAll() {
+	public List<Caseta> findAllCaseta() {
 		return this.casetaRepository.findAll();
+	}
+	
+	public List<Socio> getAllSociosByCaseta() {
+		List<Socio> res = null;
+		Caseta caseta = JWTUtils.userLogin();
+		if (caseta != null) {
+			res = caseta.getSocios();
+		}
+		return res;
 	}
 	
 	
 	// Método para guardar una caseta
-	public Caseta save(Caseta caseta) {
+	public Caseta saveCaseta(Caseta caseta) {
 		String passwordEncriptada = passwordEncoder.encode(caseta.getPassword());
 		caseta.setPassword(passwordEncriptada);
 		
@@ -60,22 +77,20 @@ public class CasetaService {
 	
 	
 	// Método para actualizar una caseta
-	public Caseta update(int id, Caseta casetaDatos) {
-		// Busco la caseta por su id y la guardo en el Optional
-		Optional<Caseta> oCaseta = findById(id);
+	public Caseta updateCaseta(Caseta casetaDatos) {
+		// Busco la caseta de la sesion
+		Caseta caseta = JWTUtils.userLogin();
 		
 		// Compruebo si la caseta existe 
-		if (oCaseta.isPresent()) {
-			// En caso de que exista obtengo el objeto
-			Caseta caseta = oCaseta.get();
+		if (caseta!= null) {
 			
 			//-- VALIDACIÓN AFORO DE LA CASETA --
 			// Tenemos que contar cuantos socios tiene la caseta
 			int numSocios = 0;
 			
 			// Comprobamos si la lista existe antes de accederla
-			if (caseta.getListaSocios() != null) {
-				numSocios = caseta.getListaSocios().size();
+			if (caseta.getSocios() != null) {
+				numSocios = caseta.getSocios().size();
 			}
 			
 			// Compruebo si el nuevo aforo que tenemos es menor que los socios actuales
@@ -97,31 +112,35 @@ public class CasetaService {
 			caseta.setAforo(casetaDatos.getAforo());
 			caseta.setPublica(casetaDatos.isPublica());
 			
-			return save(caseta);
+			return this.casetaRepository.save(caseta);
 		}
 		return null;
 	}
 	
 
 	// Método para eliminar una caseta por id
-	public void delete(int id) {
-		this.casetaRepository.deleteById(id);
+	public boolean deleteCaseta() {
+		Caseta caseta = JWTUtils.userLogin();
+		if (caseta != null) {
+			casetaRepository.deleteById(caseta.getId());
+			return true;
+		}
+		return false;
 	}
 	
 	//Métodos para las relaciones
 	
 	@Transactional
-	public SolicitudLicencia crearSolicitud(int casetaId, int ayuntamientoId) {
+	public SolicitudLicencia crearSolicitud(int ayuntamientoId) {
 	    
-	    Optional<Caseta> casetaOptional = casetaRepository.findById(casetaId);
-	    Optional<Ayuntamiento> ayuntamientoOptional = ayuntamientoService.findById(ayuntamientoId);
+		Caseta caseta = JWTUtils.userLogin();
+	    Optional<Ayuntamiento> ayuntamientoOptional = ayuntamientoService.findAyuntamientoById(ayuntamientoId);
 
 	    // Validar existencia de Caseta y Ayuntamiento
-	    if (casetaOptional.isEmpty() || ayuntamientoOptional.isEmpty()) {
+	    if (caseta == null || ayuntamientoOptional.isEmpty()) {
 	        return null; // No se puede crear la solicitud si alguno no existe
 	    }
 
-	    Caseta caseta = casetaOptional.get();
 	    Ayuntamiento ayuntamiento = ayuntamientoOptional.get();
 
 	    // 1. REGLA DE NEGOCIO: Validar Solicitud Pendiente/Activa
@@ -148,7 +167,7 @@ public class CasetaService {
 	    solicitud.setEstadoLicencia(EstadoLicencia.PENDIENTE);
 
 	    caseta.getSolicitudesLicencia().add(solicitud);
-	    casetaRepository.save(caseta);
+	    this.casetaRepository.save(caseta);
 
 	    return solicitud;
 	}
@@ -157,43 +176,73 @@ public class CasetaService {
      * Añade un Socio a una Caseta existente (Relación Unidireccional Caseta --> Socio).
      */
 	@Transactional
-	public Caseta addSocio(int casetaId, int socioId) {
-	    Optional<Caseta> casetaOptional = casetaRepository.findById(casetaId);
-	    Optional<Socio> socioOptional = socioService.findById(socioId);
+	public Caseta addSocio(int socioId) {
+		Caseta caseta = JWTUtils.userLogin();
+	    Optional<Socio> socioOptional = socioService.findSocioById(socioId);
 
 	    // 1. Validaciones de existencia
-	    if (casetaOptional.isEmpty()) {
-	        throw new RuntimeException("Caseta con ID " + casetaId + " no encontrada.");
+	    if (caseta == null) {
+	        throw new RuntimeException("Caseta no encontrada.");
 	    }
 	    
 	    if (socioOptional.isEmpty()) {
 	        throw new RuntimeException("Socio con ID " + socioId + " no encontrado.");
 	    }
 
-	    Caseta caseta = casetaOptional.get();
 	    Socio socio = socioOptional.get();
 
 	    // 2. REGLA DE NEGOCIO 4: Validar el Aforo Máximo
 	    // La caseta no puede registrar a más socios del aforo máximo.
 	    
-	    // Obtenemos el tamaño actual de la lista de socios
-	    int sociosActuales = caseta.getListaSocios().size();
+	    // Obtenemos el tamaño actual de la lista de socios, le sumamos uno ya que despúes queremos añadir un socio
+	    int sociosActuales = caseta.getSocios().size() + 1;
 	    int aforoMaximo = caseta.getAforo();
 	    
 	    // Si la cantidad de socios es igual o excede el aforo, lanzamos la excepción.
 	    if (sociosActuales >= aforoMaximo) {
-	        throw new IllegalStateException("Error de negocio: La caseta con ID " + casetaId + 
-	                                       " ha alcanzado su aforo máximo (" + aforoMaximo + " socios).");
+	        throw new IllegalStateException("Error de negocio: La caseta  ha alcanzado su aforo máximo (" + aforoMaximo + " socios).");
 	    }
 	    
 	    // 3. Lógica de Adición
 
 	    // Si el socio no está ya en la lista
-	    if (!caseta.getListaSocios().contains(socio)) {
+	    if (!caseta.getSocios().contains(socio)) {
 	        // Añadimos al nuevo socio
-	        caseta.getListaSocios().add(socio);
+	        caseta.getSocios().add(socio);
 	    } else {
-	       throw new IllegalStateException("Error de negocio: El socio con ID " + socioId + " ya es miembro de la caseta " + casetaId + ".");
+	       throw new IllegalStateException("Error de negocio: El socio con ID " + socioId + " ya es miembro de la caseta.");
+	    }
+
+	    return casetaRepository.save(caseta);
+	}
+	
+	/**
+     * Elimina un Socio a una Caseta existente (Relación Unidireccional Caseta --> Socio).
+     */
+	@Transactional
+	public Caseta removeSocio(int socioId) {
+		Caseta caseta = JWTUtils.userLogin();
+	    Optional<Socio> socioOptional = socioService.findSocioById(socioId);
+
+	    // 1. Validaciones de existencia
+	    if (caseta == null) {
+	        throw new RuntimeException("Caseta no encontrada.");
+	    }
+	    
+	    if (socioOptional.isEmpty()) {
+	        throw new RuntimeException("Socio con ID " + socioId + " no encontrado.");
+	    }
+
+	    Socio socio = socioOptional.get();
+	    
+	    // 2. Lógica de Eliminacion
+
+	    // El socio debe estar en la lista
+	    if (caseta.getSocios().contains(socio)) {
+	        // Añadimos al nuevo socio
+	        caseta.getSocios().remove(socio);
+	    } else {
+	       throw new IllegalStateException("Error: El socio con ID " + socioId + " no es miembro de la caseta.");
 	    }
 
 	    return casetaRepository.save(caseta);
@@ -202,26 +251,35 @@ public class CasetaService {
     /**
      * Añade un Producto a una Caseta existente (Relación Unidireccional Caseta -> Producto).
      */
-	public Caseta addProducto(int casetaId, int productoId) {
-		Optional<Caseta> casetaOptional = casetaRepository.findById(casetaId);
-        Optional<Producto> productoOptional = productoService.findById(productoId);
+	public Caseta addProducto(int productoId) {
+		Caseta caseta = JWTUtils.userLogin();
+        Optional<Producto> productoOptional = productoService.findProductoById(productoId);
         
-        if (casetaOptional.isEmpty()) {
-            throw new RuntimeException("Caseta con ID " + casetaId + " no encontrada.");
+        if (caseta == null) {
+            throw new RuntimeException("Caseta no encontrada.");
         }
         
         if (productoOptional.isEmpty()) {
             throw new RuntimeException("Socio con ID " + productoId + " no encontrado.");
         }
         
-        Caseta caseta = casetaOptional.get();
         Producto producto = productoOptional.get();
         
-        if (!caseta.getListaSocios().contains(producto)) {
+        if (!caseta.getSocios().contains(producto)) {
             caseta.getProductos().add(producto);
         }
         
         return casetaRepository.save(caseta);
-		
 	}
+	
+	 public List<Producto> getCartaCaseta() {
+	        Caseta caseta = JWTUtils.userLogin();
+	        if (caseta != null) {
+	            return caseta.getProductos();
+	        } else {
+				return null;
+			}
+	   }
+	 
+	
 }

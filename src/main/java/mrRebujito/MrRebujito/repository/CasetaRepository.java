@@ -10,5 +10,7 @@ import java.util.Optional;
 @Repository
 public interface CasetaRepository extends JpaRepository<Caseta, Integer> {
 	// Método para buscar por username
-	Optional<Caseta> findByUsername(String username);
+	public Optional<Caseta> findByUsername(String username);
+	
+	//Metodo para buscar casetas por socio
 }

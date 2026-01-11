@@ -25,18 +25,6 @@ public class Producto extends DomainEntity {
 			super();
 		}
 
-
-		public Producto(@NotBlank String nombre, @NotNull TipoAlimento tipoAlimento, @Min(0) Double precio) {
-			super();
-			this.nombre = nombre;
-			this.tipoAlimento = tipoAlimento;
-			this.precio = precio;
-		}
-
-
-
-
-
 		//Generamos los Getters y los Setters
 		public String getNombre() {
 			return nombre;
@@ -61,7 +49,5 @@ public class Producto extends DomainEntity {
 		public void setPrecio(Double precio) {
 			this.precio = precio;
 		}
-
-		
 		
 }

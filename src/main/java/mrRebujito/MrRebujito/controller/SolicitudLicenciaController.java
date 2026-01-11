@@ -9,6 +9,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -25,78 +26,92 @@ import mrRebujito.MrRebujito.service.SolicitudLicenciaService;
 @RequestMapping("/solicitud")
 @Tag(name = "Solicitud de licencia", description = "Controlador para la gestión de solicitudes de licencia")
 public class SolicitudLicenciaController {
-	@Autowired
-	private SolicitudLicenciaService solicitudLicenciaService;
-	
-	
-	@GetMapping
-    @Operation(summary = "Obtener todas las solicitudLicencias", description = "Devuelve una lista completa de todos las solicitudLicencias registrados en el sistema.")
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Lista de solicitudLicencias obtenida correctamente"),
-            @ApiResponse(responseCode = "404", description = "Error: No se ha podido obtener la lista de solicitudLicencias.")
-    })
-    public ResponseEntity<List<SolicitudLicencia>> findAll() {
-        List<SolicitudLicencia> solicitudes = solicitudLicenciaService.findAll();
-		if (solicitudes.isEmpty()) {
-			return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
-		}
-		return ResponseEntity.ok(solicitudes);
-    }
+	 @Autowired
+	    private SolicitudLicenciaService solicitudService;
 
-    @GetMapping("/{id}")
-    @Operation(summary = "Buscar solicitudLicencia por ID", description = "Busca una solicitudLicencia específico utilizando su ID.")
-    @ApiResponses(value = { 
-            @ApiResponse(responseCode = "200", description = "SolicitudLicencia encontrado"),
-            @ApiResponse(responseCode = "404", description = "SolicitudLicencia no encontrado")
-    })
-    public ResponseEntity<SolicitudLicencia> findById(@PathVariable int id) {
-        Optional<SolicitudLicencia> oSolicitudLicencia = solicitudLicenciaService.findById(id);
-        
-		if (oSolicitudLicencia.isPresent()) {
-			SolicitudLicencia administrador = oSolicitudLicencia.get();
-			return ResponseEntity.ok(administrador);
-		} else {
-			return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
-		}
-    }
+	    @GetMapping("/Caseta")
+	    @Operation(summary = "Obtener todas las solicitudes de caseta")
+	    @ApiResponses(value = {
+	        @ApiResponse(responseCode = "200", description = "Lista de solicitudes de caseta obtenida exitosamente"),
+	        @ApiResponse(responseCode = "500", description = "Error interno del servidor")
+	    })
+	    public ResponseEntity<List<SolicitudLicencia>> getAllSolicitudesByCaseta() {
+	    	List<SolicitudLicencia> listSolicitud = solicitudService.findSolicitudesAll();
+	        return ResponseEntity.ok(listSolicitud);
+	    }
+	    
+	    @GetMapping("/Ayuntamiento")
+	    @Operation(summary = "Obtener todas las solicitudes de ayuntamiento")
+	    @ApiResponses(value = {
+	        @ApiResponse(responseCode = "200", description = "Lista de solicitudes de ayuntamiento obtenida exitosamente"),
+	        @ApiResponse(responseCode = "500", description = "Error interno del servidor")
+	    })
+	    public ResponseEntity<List<SolicitudLicencia>> getAllSolicitudesByAyuntamiento() {
+	    	List<SolicitudLicencia> listSolicitud = solicitudService.getAllSolicitudesByAyuntamiento();
+	        return ResponseEntity.ok(listSolicitud);
+	    }
 
-   
-    @PutMapping("/{id}")
-    @Operation(summary = "Actualizar una solicitudLicencia", description = "Actualiza la información de una solicitudLicencia existente según su ID.")
-    @ApiResponses(value = { 
-            @ApiResponse(responseCode = "200", description = "SolicitudLicencia actualizada correctamente"),
-            @ApiResponse(responseCode = "400", description = "Error: SolicitudLicencia no encontrada o datos inválidos"),
-            @ApiResponse(responseCode = "409", description = "Error: Se ha producido un error interno del servidor al actualizar la solicitudLicencia") 
-    })
-    public ResponseEntity<String> update(@PathVariable int id, @RequestBody SolicitudLicencia solicitudLicencia) {
-    	try {
-    		if (solicitudLicenciaService.update(id, solicitudLicencia) == null) {
-    			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("SolicitudLicencia no encontrada");
-    		} else {
-    			return ResponseEntity.status(HttpStatus.OK).body("SolicitudLicencia actualizada correctamente");
-    		}
-    	} catch (IllegalStateException e) {
-         // Capturamos la excepción de límite de licencias
-    		return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
-    	}
-    }
+	    @GetMapping("/{id}")
+	    @Operation(summary = "Buscar una solicitud por ID")
+	    @ApiResponses(value = {
+	        @ApiResponse(responseCode = "200", description = "Solicitud encontrada"),
+	        @ApiResponse(responseCode = "404", description = "Solicitud no encontrada, o emisor/receptor no logueado")
+	    })
+	    public ResponseEntity<SolicitudLicencia> findOneSolicitud(@PathVariable int id) {
+	        Optional<SolicitudLicencia> solicitud = solicitudService.findSolicitudById(id);
+	        if (solicitud.isPresent()) {
+	        	return ResponseEntity.ok(solicitud.get());
+	        } else {
+	            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
+	        }
+	    }
 
-    @DeleteMapping("/{id}")
-    @Operation(summary = "Eliminar una solicitudLicencia", description = "Elimina una solicitudLicencia existente de la base de datos utilizando su ID.")
-    @ApiResponses(value = { 
-            @ApiResponse(responseCode = "200", description = "SolicitudLicencia eliminado correctamente"),
-            @ApiResponse(responseCode = "400", description = "Error: SolicitudLicencia no encontrado") 
-    })
-    public ResponseEntity<String> delete(@PathVariable int id) {
-        Optional<SolicitudLicencia> oSolicitudLicencia = solicitudLicenciaService.findById(id);
-        if (oSolicitudLicencia.isPresent()) {
-        	solicitudLicenciaService.delete(id);
-            return ResponseEntity.status(HttpStatus.OK).body("SolicitudLicencia eliminada correctamente");
-        } else {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("SolicitudLicencia no encontrado");
-        }
-    }
-    
+	    @PutMapping("/aceptar/{id}")
+	    @Operation(summary = "Aceptar una solicitud por ID")
+	    @ApiResponses(value = {
+	        @ApiResponse(responseCode = "202", description = "Solicitud aceptada exitosamente"),
+	        @ApiResponse(responseCode = "400", description = "Error al aceptar la solicitud")
+	    })
+	    public void acceptSolicitud(@PathVariable int id) {
+	        Boolean verEstado = solicitudService.aceptarSolicitud(id);
+	        if (verEstado == false) {
+	            ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Error al aceptar la solicitud");
+	        } else {
+	            ResponseEntity.status(HttpStatus.ACCEPTED).body("Solicitud aceptada correctamente");
+	        }
+	    }
+
+	    @PutMapping("/rechazar/{id}")
+	    @Operation(summary = "Rechazar una solicitud por ID")
+	    @ApiResponses(value = {
+	        @ApiResponse(responseCode = "202", description = "Solicitud rechazada exitosamente"),
+	        @ApiResponse(responseCode = "400", description = "Error al rechazar la solicitud")
+	    })
+	    public ResponseEntity<String> refuseSolicitud(@PathVariable int id) {
+	        Boolean verEstado = solicitudService.rechazarSolicitud(id);
+	        if (verEstado == false) {
+	            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Error al rechazar la solicitud");
+	        } else {
+	            return ResponseEntity.status(HttpStatus.ACCEPTED).body("Solicitud rechazada correctamente");
+	        }
+	    }
+
+	  
+
+	    @DeleteMapping("/{id}")
+	    @Operation(summary = "Eliminar una solicitud por ID")
+	    @ApiResponses(value = {
+	        @ApiResponse(responseCode = "202", description = "Solicitud eliminada exitosamente"),
+	        @ApiResponse(responseCode = "400", description = "Error al borrar la solicitud")
+	    })
+	    public void delete(@PathVariable int id) {
+	        Boolean verEstadoBorrado = solicitudService.deleteSolicitud(id);
+	        if (verEstadoBorrado == false) {
+	            ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
+	        } else {
+	            ResponseEntity.status(HttpStatus.ACCEPTED).build();
+	        }
+	    }
    
     
 

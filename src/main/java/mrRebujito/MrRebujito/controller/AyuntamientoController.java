@@ -39,8 +39,8 @@ public class AyuntamientoController {
 	@ApiResponses(value = {
 			@ApiResponse(responseCode = "200", description = "Lista de ayuntamientos obtenida exitosamente"),
 			@ApiResponse(responseCode = "404", description = "No se pudo obtener la lista de ayuntamientos") })
-	public ResponseEntity<List<Ayuntamiento>> findAll() {
-		List<Ayuntamiento> ayuntamientos = ayuntamientoService.findAll();
+	public ResponseEntity<List<Ayuntamiento>> findAllAyuntamiento() {
+		List<Ayuntamiento> ayuntamientos = ayuntamientoService.findAllAyuntamiento();
 		if (ayuntamientos.isEmpty()) {
 			return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
 		}
@@ -53,17 +53,16 @@ public class AyuntamientoController {
 			@ApiResponse(responseCode = "200", description = "Ayuntamiento encontrado"),
 			@ApiResponse(responseCode = "400", description = "Ayuntamiento no encontrado", content = @Content) })
 	// Método que te devuelve un ayuntamiento
-	public ResponseEntity<Ayuntamiento> findById(@PathVariable int id) {
-		Optional<Ayuntamiento> opAyuntamiento = ayuntamientoService.findById(id);
+	public ResponseEntity<Ayuntamiento> findAyuntamientoById(@PathVariable int id) {
+		Optional<Ayuntamiento> opAyuntamiento = ayuntamientoService.findAyuntamientoById(id);
 
 		// Si el Optional contiene un ayuntamiento
 		if (opAyuntamiento.isPresent()) {
-			Ayuntamiento ayuntamiento = opAyuntamiento.get();
-			return ResponseEntity.ok(ayuntamiento); // Devolvemos 200 OK con el ayuntamiento
+			return ResponseEntity.ok(opAyuntamiento.get()); // Devolvemos 200 OK con el ayuntamiento
 		}
 		// Si el Optional está vacío (no encontró el ayuntamiento)
 		else {
-			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null); // Devolvemos 404 ERROR
+			return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null); // Devolvemos 404 ERROR
 		}
 	}
 
@@ -74,23 +73,32 @@ public class AyuntamientoController {
 			@ApiResponse(responseCode = "400", description = "La foto debe ser un enlace válido"),
 			@ApiResponse(responseCode = "500", description = "Error interno del servidor al crear el ayuntamiento") })
 	// Método para guardar Ayuntamiento
-	public ResponseEntity<String> save(@RequestBody Ayuntamiento ayun) {
+	public ResponseEntity<String> saveAyuntamiento(@RequestBody Ayuntamiento ayun) {
 		String foto = ayun.getFoto();
 		if (foto == null || !foto.matches("^(https?):/?/?[^.]+\\.[^.]+\\.[^.]+$")) {
 			return ResponseEntity.badRequest().body("La foto debe ser un enlace válido");
 		}
 		
 		try {
-			ayuntamientoService.save(ayun);
-			return ResponseEntity.ok("Ayuntamiento creado correctamente");
-
+			if (ayuntamientoService.findByUsername(ayun.getUsername()).isPresent()) {
+				ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
+			} else {
+				Ayuntamiento a = ayuntamientoService.saveAyuntamiento(ayun);
+				if (a != null) {
+					return ResponseEntity.ok("Ayuntamiento creado correctamente");
+				}
+				
+			}
+			
 		} catch (Exception e) {
 			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
 					.body("Error interno al crear el ayuntamiento");
 		}
+		return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+				.body("Error interno al crear el ayuntamiento");
 	}
 
-	@PutMapping("/{id}") // Peticiones HTTP PUT
+	@PutMapping // Peticiones HTTP PUT
 	@Operation(summary = "Actualizar un ayuntamiento", description = "Actualiza la información de un ayuntamiento existente según su id")
 	@ApiResponses(value = { 
 			@ApiResponse(responseCode = "200", description = "Ayuntamiento actualizado correctamente"),
@@ -104,7 +112,7 @@ public class AyuntamientoController {
 			}
 			
 			
-			if (ayuntamientoService.update(id, ayun) == null) {
+			if (ayuntamientoService.updateAyuntamiento(ayun) == null) {
 				return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Ayuntamiento no encontrado");
 			} else {
 				return ResponseEntity.status(HttpStatus.OK).body("Ayuntamiento actualizado correctamente");
@@ -115,16 +123,16 @@ public class AyuntamientoController {
 			
 	}
 
-	@DeleteMapping("/{id}") // Peticiones HTTP DELETE
+	@DeleteMapping // Peticiones HTTP DELETE
 	@Operation(summary = "Eliminar un ayuntamiento", description = "Elimina un ayuntamiento existente de la base de datos utilizando su id")
 	@ApiResponses(value = { 
 			@ApiResponse(responseCode = "200", description = "Ayuntamiento eliminado correctamente"),
 			@ApiResponse(responseCode = "400", description = "Ayuntamiento no encontrado") })
 	public ResponseEntity<String> delete(@PathVariable int id) {
-		Optional<Ayuntamiento> opAyuntamiento = ayuntamientoService.findById(id);
+		Optional<Ayuntamiento> opAyuntamiento = ayuntamientoService.findAyuntamientoById(id);
 
 		if (opAyuntamiento.isPresent()) {
-			ayuntamientoService.delete(id);
+			ayuntamientoService.deleteAyuntamiento();
 			return ResponseEntity.status(HttpStatus.OK).body("Ayuntamieto eliminado correctamente");
 		} else {
 			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Ayuntamieto no encontrado");

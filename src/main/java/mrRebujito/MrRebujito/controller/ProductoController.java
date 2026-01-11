@@ -32,7 +32,7 @@ public class ProductoController {
             @ApiResponse(responseCode = "204", description = "No hay productos en la base de datos") 
     })
     public ResponseEntity<List<Producto>> findAll() {
-        List<Producto> productos = productoService.findAll();
+        List<Producto> productos = productoService.findAllProducto();
         
         if (productos == null || productos.isEmpty()) {
             return ResponseEntity.noContent().build();
@@ -47,7 +47,7 @@ public class ProductoController {
             @ApiResponse(responseCode = "404", description = "Producto no encontrado") 
     })
     public ResponseEntity<Producto> findById(@PathVariable int id) {
-        Optional<Producto> opProducto = productoService.findById(id);
+        Optional<Producto> opProducto = productoService.findProductoById(id);
 
         return opProducto.map(ResponseEntity::ok)
                 .orElseGet(() -> ResponseEntity.status(HttpStatus.NOT_FOUND).build());
@@ -70,7 +70,7 @@ public class ProductoController {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("El precio no puede ser negativo.");
         }
 
-        Producto nuevoProducto = productoService.save(pro);
+        Producto nuevoProducto = productoService.saveProducto(pro);
         
         return ResponseEntity.status(HttpStatus.CREATED).body(nuevoProducto);
     }
@@ -88,7 +88,7 @@ public class ProductoController {
              return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Datos inválidos para actualizar.");
         }
 
-        Producto productoActualizado = productoService.update(id, pro);
+        Producto productoActualizado = productoService.updateProducto(id, pro);
 
         if (productoActualizado != null) {
             return ResponseEntity.ok(productoActualizado);
@@ -105,7 +105,7 @@ public class ProductoController {
             @ApiResponse(responseCode = "403", description = "No tienes permiso") 
     })
     public ResponseEntity<Void> delete(@PathVariable int id) {
-        if (productoService.findById(id).isPresent()) {
+        if (productoService.findProductoById(id).isPresent()) {
             productoService.deleteById(id);
            
             return ResponseEntity.noContent().build(); 

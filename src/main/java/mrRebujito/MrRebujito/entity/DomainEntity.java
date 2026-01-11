@@ -10,7 +10,7 @@ import jakarta.persistence.Version;
 
 @Entity
 @Inheritance(strategy = InheritanceType.TABLE_PER_CLASS)
-public class DomainEntity {
+public abstract class DomainEntity {
 	
 	@Id
 	@GeneratedValue(strategy = GenerationType.AUTO)
@@ -23,11 +23,6 @@ public class DomainEntity {
 		super();
 	}
 
-	public DomainEntity(int id, int version) {
-		super();
-		this.id = id;
-		this.version = version;
-	}
 
 	public int getId() {
 		return id;

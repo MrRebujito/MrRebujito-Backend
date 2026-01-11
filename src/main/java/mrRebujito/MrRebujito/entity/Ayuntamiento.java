@@ -7,7 +7,6 @@ import jakarta.validation.constraints.NotNull;
 @Entity
 public class Ayuntamiento extends Actor{
 	
-	//Atributos de la tabla ayuntamiento
 	@NotNull
 	@Min(0)
 	private int LicenciaMax;
@@ -16,15 +15,11 @@ public class Ayuntamiento extends Actor{
 	public Ayuntamiento() {
 		super();
 	}
-	
-	
 
 	public Ayuntamiento(@NotNull @Min(0) int licenciaMax) {
 		super();
 		LicenciaMax = licenciaMax;
 	}
-
-
 
 	public int getLicenciaMax() {
 		return LicenciaMax;
@@ -33,8 +28,5 @@ public class Ayuntamiento extends Actor{
 	public void setLicenciaMax(int licenciaMax) {
 		LicenciaMax = licenciaMax;
 	}
-	
-	
-	
 
 }

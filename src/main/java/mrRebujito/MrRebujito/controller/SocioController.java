@@ -38,132 +38,57 @@ public class SocioController {
 	@Autowired
 	private SocioService socioService;
 
-	@GetMapping // sta anotación indica que este método responde a peticiones HTTP GET
-	@Operation(summary = "Obtener todos los socios", description = "Te devuelve todos los socios que hay")
-	@ApiResponses(value = { 
-			@ApiResponse(responseCode = "200", description = "Lista de socios obtenida exitosamente"),
-			@ApiResponse(responseCode = "404", description = "Error: No se ha podido obtener la lista de socios")})
-	public ResponseEntity<List<Socio>> findAll() {
-		List<Socio> socios = socioService.findAll();
-		if (socios != null && !socios.isEmpty()) {
-			return ResponseEntity.ok(socios);
-		} else {
-			return ResponseEntity.status(HttpStatus.NO_CONTENT).body(socios);
-		}
-	}
+	 @PostMapping
+	    @ApiResponses(value = { @ApiResponse(responseCode = "201", description = "Socio creado exitosamente"),
+	            @ApiResponse(responseCode = "400", description = "Solicitud inválida"),
+	            @ApiResponse(responseCode = "409", description = "El username ya está en uso") })
+	    public void saveSocio(@RequestBody Socio socio) {
+	        if (socioService.findSocioByUsername(socio.getUsername()).isPresent()) {
+	            ResponseEntity.status(HttpStatus.BAD_REQUEST);
+	        } else {
+	            Socio s = socioService.saveSocio(socio);
+	            if (s != null) {
+	                ResponseEntity.status(HttpStatus.CREATED);
+	            } else {
+	                ResponseEntity.status(HttpStatus.BAD_REQUEST);
+	            }
+	        }
+	    }
 
-	@GetMapping("/{id}")
-	@Operation(summary = "Buscar socio por id", description = "Busca un socio específico utilizando su id")
-	@ApiResponses(value = { 
-			@ApiResponse(responseCode = "200", description = "Socio encontrado"),
-			@ApiResponse(responseCode = "400", description = "Socio no encontrado", content=@Content) })
+	    @PutMapping
+	    @Operation(summary = "Actualizar un socio existente")
+	    @ApiResponses(value = { @ApiResponse(responseCode = "200", description = "Socio actualizado exitosamente"),
+	            @ApiResponse(responseCode = "404", description = "Socio no encontrado"),
+	            @ApiResponse(responseCode = "400", description = "Solicitud inválida") })
+	    public void updateSocio(@RequestBody Socio updatedSocio) {
+	        Socio response = socioService.updateSocio(updatedSocio);
+	        if (response != null) {
+	            ResponseEntity.status(HttpStatus.OK);
+	        } else {
+	            ResponseEntity.status(HttpStatus.NOT_FOUND);
+	        }
+	    }
 
-	// Método que te devuelve un socio
-	public ResponseEntity<Socio> findById(@PathVariable int id) {
-		Optional<Socio> opSocio = socioService.findById(id);
+	    @DeleteMapping
+	    @Operation(summary = "Eliminar un socio logueado")
+	    @ApiResponses(value = { @ApiResponse(responseCode = "200", description = "Socio eliminado exitosamente"),
+	            @ApiResponse(responseCode = "404", description = "Socio no encontrado") })
+	    public void deleteSocio() {
+	        if (socioService.deleteSocio()) {
+	            ResponseEntity.status(HttpStatus.OK);
+	        } else {
+	            ResponseEntity.status(HttpStatus.NOT_FOUND);
+	        }
+	    }
 
-		// Si el Optional contiene un socio
-		if (opSocio.isPresent()) {
-			Socio socio = opSocio.get();
-			return ResponseEntity.ok(socio); // Devolvemos 200 OK con el socio
-		}
-		// Si el Optional está vacío (no encontró el socio)
-		else {
-			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null); // Devolvemos 400 ERROR
-		}
-	}
-
-	@PostMapping // Peticiones HTTP POST
-	@Operation(summary = "Crear un nuevo socio", description = "Registra un nuevo socio en la base de datos")
-	@ApiResponses(value = { 
-			@ApiResponse(responseCode = "200", description = "Socio creado correctamente"),
-			@ApiResponse(responseCode = "400", description = "La foto debe ser un enlace válido"),
-			@ApiResponse(responseCode = "500", description = "Error interno del servidor al crear el socio") })
-	// Método para guardar socio
-	public ResponseEntity<String> save(@RequestBody Socio soc) {
-
-		String foto = soc.getFoto();
-		if (foto == null || !foto.matches("^(https?):/?/?[^.]+\\.[^.]+\\.[^.]+$")) {
-			return ResponseEntity.badRequest().body("La foto debe ser un enlace válido");
-		}
-		
-		
-		if (soc != null && soc.getNombre() != null && !soc.getNombre().isEmpty()) {
-
-			socioService.save(soc);
-
-			return ResponseEntity.status(HttpStatus.OK).body("Socio creado correctamente");
-
-		} else {
-
-			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Datos del socio inválidos");
-		}
-	}
-
-	@PutMapping // Peticiones HTTP PUT
-	@Operation(summary = "Actualizar un socio", description = "Actualiza la información del socio logueado")
-	@ApiResponses(value = { 
-			@ApiResponse(responseCode = "200", description = "Socio actualizado correctamente"),
-			@ApiResponse(responseCode = "400", description = "Socio no encontrado o datos inválidos"),
-			@ApiResponse(responseCode = "500", description = "Error interno del servidor al actualizar el socio") })
-	public ResponseEntity<String> update(@RequestBody Socio soc) {
-		String foto = soc.getFoto();
-		if (foto == null || !foto.matches("^(https?):/?/?[^.]+\\.[^.]+\\.[^.]+$")) {
-			return ResponseEntity.badRequest().body("La foto debe ser un enlace válido");
-		}
-
-		if (soc == null || soc.getNombre() == null || soc.getNombre().isEmpty()) {
-
-			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Datos del socio inválidos");
-		}
-
-		if (socioService.update(soc) == null) {
-
-			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Socio no encontrado");
-
-		} else {
-
-			return ResponseEntity.status(HttpStatus.OK).body("Socio actualizado correctamente");
-		}
-	}
-
-	@DeleteMapping // Peticiones HTTP DELETE
-	@Operation(summary = "Eliminar un socio", description = "Elimina el socio logueado de la base de datos")
-	@ApiResponses(value = { 
-			@ApiResponse(responseCode = "200", description = "Socio eliminado correctamente"),
-			@ApiResponse(responseCode = "400", description = "Socio no encontrado") })
-	public ResponseEntity<String> delete() {
-		// Obtener el socio logueado para verificar si existe
-		Socio socioLogueado = socioService.getSocioLogueado();
-		
-		if (socioLogueado != null) {
-			socioService.delete();
-			return ResponseEntity.status(HttpStatus.OK).body("Socio eliminado correctamente");
-		} else {
-			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Socio no encontrado");
-		}
-	}
-
-	@GetMapping("/misCasetas")
-	@Operation(summary = "Obtener mis casetas", description = "Lista y muestra las casetas a las que pertenece el socio logueado")
-	@ApiResponses(value = { 
-			@ApiResponse(responseCode = "200", description = "Casetas obtenidas exitosamente"),
-			@ApiResponse(responseCode = "404", description = "Socio no encontrado"),
-			@ApiResponse(responseCode = "204", description = "El socio no pertenece a ninguna caseta") })
-	public ResponseEntity<List<Caseta>> getMisCasetas() {
-		// Obtenemos las casetas del socio logueado
-		List<Caseta> casetas = socioService.getMisCasetas();
-
-		if (casetas == null) {
-			// Si getMisCasetas() devuelve null, significa que no hay socio logueado
-			return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
-		}
-		else if (!casetas.isEmpty()) {
-			return ResponseEntity.ok(casetas);
-		} else {
-			return ResponseEntity.status(HttpStatus.NO_CONTENT).body(casetas);
-		}
-	}
+	    @GetMapping("/misCasetas")
+	    public ResponseEntity<List<Caseta>> getMisCasetas() {
+	        List<Caseta> casetas = socioService.getMisCasetas();
+	        if (casetas.isEmpty()) {
+	            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+	        }
+	        return ResponseEntity.ok(casetas);
+	    }
 	
 
 }

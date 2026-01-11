@@ -8,33 +8,35 @@ import org.springframework.stereotype.Service;
 
 import mrRebujito.MrRebujito.entity.Producto;
 import mrRebujito.MrRebujito.repository.ProductoRepository;
+import mrRebujito.MrRebujito.security.JWTUtils;
 
 @Service
 public class ProductoService {
 	
 	@Autowired
 	private ProductoRepository productoRepository;
+	
 
 
 	// Método para obtener los Productos
-	public List<Producto> findAll() {
+	public List<Producto> findAllProducto() {
 		return this.productoRepository.findAll();
 	}
 	
 	 //Metodo que devuelve el producto metiendole su id
-	 public Optional<Producto> findById(int id) {
+	 public Optional<Producto> findProductoById(int id) {
 	        return productoRepository.findById(id);
-	    }
+	 }
 	
 	//Método para guardar un producto introduciendole el objeto
-	 public Producto save(Producto producto) {
+	 public Producto saveProducto(Producto producto) {
 	        return productoRepository.save(producto);
-	    }
+	 }
 	 
-	 public Producto update(int idProducto, Producto producto) {
+	 public Producto updateProducto(int idProducto, Producto producto) {
 			
 			//Variable Producto optional para encontrar el producto por id
-			Optional<Producto> opProducto = findById(idProducto);
+			Optional<Producto> opProducto = findProductoById(idProducto);
 			
 			//Comprueba si el socio existe
 			if(opProducto.isPresent()) {
@@ -47,7 +49,7 @@ public class ProductoService {
 				pro.setTipoAlimento(producto.getTipoAlimento());
 				
 				//Te devuelve el producto guardado
-				return save(pro);
+				return saveProducto(pro);
 			}
 			
 			//Si no existe te devuelve null
