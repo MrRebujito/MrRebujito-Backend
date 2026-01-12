@@ -54,8 +54,6 @@ public class SecurityConfiguration {
                 // 2. PUBLICO (Req. Funcional 1)
                 // ==========================================
                 // 1a. Registrarse como caseta o socio
-                .requestMatchers(HttpMethod.POST, "/caseta/registrar", "/socio/registrar").permitAll() 
-                // (Nota: Ajusta si tu ruta es solo /caseta o /socio en el POST)
                 .requestMatchers(HttpMethod.POST, "/caseta", "/socio").permitAll()
 
                 // 1b. Listar ayuntamientos
@@ -78,7 +76,7 @@ public class SecurityConfiguration {
                 // 3a. Gestionar solicitudes (Listar propias, crear, borrar si es pendiente)
                 .requestMatchers(HttpMethod.POST, "/solicitud").hasAuthority("CASETA") 
                 .requestMatchers(HttpMethod.DELETE, "/solicitud/{id}").hasAuthority("CASETA")
-                .requestMatchers(HttpMethod.GET, "/solicitud/Caseta").hasAuthority("CASETA") // Nueva ruta sugerida
+                .requestMatchers(HttpMethod.GET, "/solicitud/Caseta").hasAuthority("CASETA") 
 
                 // 3b. Gestionar carta (Añadir/Borrar/Modificar productos)
                 .requestMatchers(HttpMethod.POST, "/producto").hasAuthority("CASETA")
@@ -90,8 +88,8 @@ public class SecurityConfiguration {
                 .requestMatchers(HttpMethod.DELETE, "/caseta/socios/{socioId}").hasAuthority("CASETA")
                 
                 // Editar sus propios datos
-                .requestMatchers(HttpMethod.PUT, "/caseta/{id}").hasAuthority("CASETA")
-                .requestMatchers(HttpMethod.DELETE, "/caseta/{id}").hasAuthority("CASETA")
+                .requestMatchers(HttpMethod.PUT, "/caseta/").hasAuthority("CASETA")
+                .requestMatchers(HttpMethod.DELETE, "/caseta/").hasAuthority("CASETA")
 
                 // ==========================================
                 // 5. AYUNTAMIENTO (Req. Funcional 4)
@@ -99,12 +97,12 @@ public class SecurityConfiguration {
                 // 4a. Listar sus casetas aceptadas (Ruta privada del ayuntamiento)
                 .requestMatchers(HttpMethod.GET, "/solicitud/ayuntamiento").hasAuthority("AYUNTAMIENTO")
 
-                // IMPORTANTE: Cambiado a PUT porque cambia el estado de la BD
+                // IMPORTANTE: PUT porque cambia el estado de la BD
                 .requestMatchers(HttpMethod.PUT, "/solicitud/{id}/aceptar").hasAuthority("AYUNTAMIENTO")
                 .requestMatchers(HttpMethod.PUT, "/solicitud/{id}/rechazar").hasAuthority("AYUNTAMIENTO")
                 
                 // Editar sus propios datos
-                .requestMatchers(HttpMethod.PUT, "/ayuntamiento/{id}").hasAuthority("AYUNTAMIENTO")
+                .requestMatchers(HttpMethod.PUT, "/ayuntamiento/").hasAuthority("AYUNTAMIENTO")
 
                 // ==========================================
                 // 6. SOCIO (Req. Funcional 5)
@@ -113,8 +111,8 @@ public class SecurityConfiguration {
                 .requestMatchers(HttpMethod.GET, "/socio/misCasetas").hasAuthority("SOCIO")
                 
                 // Editar sus datos (Req 2b)
-                .requestMatchers(HttpMethod.PUT, "/socio/{id}").hasAuthority("SOCIO")
-                .requestMatchers(HttpMethod.DELETE, "/socio/{id}").hasAuthority("SOCIO")
+                .requestMatchers(HttpMethod.PUT, "/socio").hasAuthority("SOCIO")
+                .requestMatchers(HttpMethod.DELETE, "/socio").hasAuthority("SOCIO")
 
 
                 // SWAGGER (Documentación)
