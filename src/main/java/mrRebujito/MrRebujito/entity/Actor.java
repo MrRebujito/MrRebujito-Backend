@@ -36,6 +36,8 @@ public abstract class Actor extends DomainEntity{
 	private String password;
 
 	private Roles rol;
+	
+	private boolean baneado;
 
 	public Actor() {
 		super();
@@ -104,5 +106,15 @@ public abstract class Actor extends DomainEntity{
 	public void setRol(Roles rol) {
 		this.rol = rol;
 	}
+
+	public boolean isBaneado() {
+		return baneado;
+	}
+
+	public void setBaneado(boolean baneado) {
+		this.baneado = baneado;
+	}
+	
+	
 
 }

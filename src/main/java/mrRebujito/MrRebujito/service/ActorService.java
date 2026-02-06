@@ -39,6 +39,13 @@ public class ActorService implements UserDetailsService {
 			throw new UsernameNotFoundException("Username no encontrado");
 		}
 	}
-
+	
+	public Optional<Actor> findById(int id) {
+		return actorRepository.findById(id);
+	}
+	
+	public Actor saveBasico (Actor a) {
+		return actorRepository.save(a);
+	}
 	
 }
