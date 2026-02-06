@@ -23,9 +23,11 @@ import mrRebujito.MrRebujito.entity.ActorLogin;
 import mrRebujito.MrRebujito.entity.Ayuntamiento;
 import mrRebujito.MrRebujito.entity.Caseta;
 import mrRebujito.MrRebujito.entity.Roles;
+import mrRebujito.MrRebujito.entity.Socio;
 import mrRebujito.MrRebujito.service.ActorService;
 import mrRebujito.MrRebujito.service.AyuntamientoService;
 import mrRebujito.MrRebujito.service.CasetaService;
+import mrRebujito.MrRebujito.service.SocioService;
 import mrRebujito.MrRebujito.security.JWTUtils;
 
 @RestController
@@ -45,6 +47,9 @@ public class ActorController {
 	
 	@Autowired
 	private CasetaService casetaService;
+	
+	@Autowired
+	private SocioService socioService;
 
 	@PostMapping("/login")
 	public ResponseEntity<Map<String, String>> login(@RequestBody ActorLogin actorLogin) {
@@ -66,13 +71,19 @@ public class ActorController {
 				Caseta c = casetaService.findCasetaById(actorO.get().getId()).get();
 				c.setBaneado(true);
 				actorService.saveBasico(c);
-				return ResponseEntity.ok("Chef con ID " + actorId + " ha sido baneado.");
+				return ResponseEntity.ok("Actor con ID " + actorId + " ha sido baneado.");
+			} else if (actorO.get().getRol() == Roles.AYUNTAMIENTO) {
+				Ayuntamiento a = ayuntamientoService.findAyuntamientoById(actorO.get().getId()).get();
+				a.setBaneado(true);
+				actorService.saveBasico(a);
+				return ResponseEntity.ok("Ayuntamiento con ID " + actorId + " ha sido baneado.");
 			} else {
-				Ayuntamiento ay = ayuntamientoService.findAyuntamientoById(actorO.get().getId()).get();
-				ay.setBaneado(true);
-				actorService.saveBasico(ay);
-				return ResponseEntity.ok("Cliente con ID " + actorId + " ha sido baneado.");
+				Socio s = socioService.findSocioById(actorO.get().getId()).get();
+				s.setBaneado(true);
+				actorService.saveBasico(s);
+				return ResponseEntity.ok("Socio con ID " + actorId + " ha sido baneado.");
 			}
+			
 		} else {
 			return ResponseEntity.status(HttpStatus.NOT_FOUND).body("No se encontró un chef con ID " + actorId);
 		}
@@ -85,9 +96,9 @@ public class ActorController {
 		if (actorO.isPresent() && actorO.get().getRol() != Roles.ADMIN) {
 			actorO.get().setBaneado(false);
 			actorService.saveBasico(actorO.get());
-			return ResponseEntity.ok("Chef con ID " + actorId + " ha sido baneado.");
+			return ResponseEntity.ok("Actor con ID " + actorId + " ha sido baneado.");
 		} else {
-			return ResponseEntity.status(HttpStatus.NOT_FOUND).body("No se encontró un chef con ID " + actorId);
+			return ResponseEntity.status(HttpStatus.NOT_FOUND).body("No se encontró un actor con ID " + actorId);
 		}
 	}
 }
