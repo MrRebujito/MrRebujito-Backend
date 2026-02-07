@@ -90,5 +90,8 @@ public class SocioController {
 	        return ResponseEntity.ok(casetas);
 	    }
 	
-
+	    @GetMapping
+	    public ResponseEntity<List<Socio>> findAll() {
+	    	return ResponseEntity.ok(socioService.findAllSocios());
+	    }
 }
