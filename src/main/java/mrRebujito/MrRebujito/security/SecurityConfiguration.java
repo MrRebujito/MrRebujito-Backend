@@ -108,6 +108,7 @@ public class SecurityConfiguration {
                 // 6. SOCIO (Req. Funcional 5)
                 // ==========================================
                 // 5b. Listar casetas a las que pertenece
+                .requestMatchers(HttpMethod.GET, "/socio").permitAll()
                 .requestMatchers(HttpMethod.GET, "/socio/misCasetas").hasAuthority("SOCIO")
                 
                 // Editar sus datos (Req 2b)

@@ -38,57 +38,62 @@ public class SocioController {
 	@Autowired
 	private SocioService socioService;
 
-	 @PostMapping
-	    @ApiResponses(value = { @ApiResponse(responseCode = "201", description = "Socio creado exitosamente"),
-	            @ApiResponse(responseCode = "400", description = "Solicitud inválida"),
-	            @ApiResponse(responseCode = "409", description = "El username ya está en uso") })
-	    public void saveSocio(@RequestBody Socio socio) {
-	        if (socioService.findSocioByUsername(socio.getUsername()).isPresent()) {
-	            ResponseEntity.status(HttpStatus.BAD_REQUEST);
-	        } else {
-	            Socio s = socioService.saveSocio(socio);
-	            if (s != null) {
-	                ResponseEntity.status(HttpStatus.CREATED);
-	            } else {
-	                ResponseEntity.status(HttpStatus.BAD_REQUEST);
-	            }
-	        }
-	    }
+	@PostMapping
+	@ApiResponses(value = { @ApiResponse(responseCode = "201", description = "Socio creado exitosamente"),
+			@ApiResponse(responseCode = "400", description = "Solicitud inválida"),
+			@ApiResponse(responseCode = "409", description = "El username ya está en uso") })
+	public void saveSocio(@RequestBody Socio socio) {
+		if (socioService.findSocioByUsername(socio.getUsername()).isPresent()) {
+			ResponseEntity.status(HttpStatus.BAD_REQUEST);
+		} else {
+			Socio s = socioService.saveSocio(socio);
+			if (s != null) {
+				ResponseEntity.status(HttpStatus.CREATED);
+			} else {
+				ResponseEntity.status(HttpStatus.BAD_REQUEST);
+			}
+		}
+	}
 
-	    @PutMapping
-	    @Operation(summary = "Actualizar un socio existente")
-	    @ApiResponses(value = { @ApiResponse(responseCode = "200", description = "Socio actualizado exitosamente"),
-	            @ApiResponse(responseCode = "404", description = "Socio no encontrado"),
-	            @ApiResponse(responseCode = "400", description = "Solicitud inválida") })
-	    public void updateSocio(@RequestBody Socio updatedSocio) {
-	        Socio response = socioService.updateSocio(updatedSocio);
-	        if (response != null) {
-	            ResponseEntity.status(HttpStatus.OK);
-	        } else {
-	            ResponseEntity.status(HttpStatus.NOT_FOUND);
-	        }
-	    }
+	@PutMapping
+	@Operation(summary = "Actualizar un socio existente")
+	@ApiResponses(value = { @ApiResponse(responseCode = "200", description = "Socio actualizado exitosamente"),
+			@ApiResponse(responseCode = "404", description = "Socio no encontrado"),
+			@ApiResponse(responseCode = "400", description = "Solicitud inválida") })
+	public void updateSocio(@RequestBody Socio updatedSocio) {
+		Socio response = socioService.updateSocio(updatedSocio);
+		if (response != null) {
+			ResponseEntity.status(HttpStatus.OK);
+		} else {
+			ResponseEntity.status(HttpStatus.NOT_FOUND);
+		}
+	}
 
-	    @DeleteMapping
-	    @Operation(summary = "Eliminar un socio logueado")
-	    @ApiResponses(value = { @ApiResponse(responseCode = "200", description = "Socio eliminado exitosamente"),
-	            @ApiResponse(responseCode = "404", description = "Socio no encontrado") })
-	    public void deleteSocio() {
-	        if (socioService.deleteSocio()) {
-	            ResponseEntity.status(HttpStatus.OK);
-	        } else {
-	            ResponseEntity.status(HttpStatus.NOT_FOUND);
-	        }
-	    }
+	@DeleteMapping
+	@Operation(summary = "Eliminar un socio logueado")
+	@ApiResponses(value = { @ApiResponse(responseCode = "200", description = "Socio eliminado exitosamente"),
+			@ApiResponse(responseCode = "404", description = "Socio no encontrado") })
+	public void deleteSocio() {
+		if (socioService.deleteSocio()) {
+			ResponseEntity.status(HttpStatus.OK);
+		} else {
+			ResponseEntity.status(HttpStatus.NOT_FOUND);
+		}
+	}
 
-	    @GetMapping("/misCasetas")
-	    public ResponseEntity<List<Caseta>> getMisCasetas() {
-	        List<Caseta> casetas = socioService.getMisCasetas();
-	        if (casetas.isEmpty()) {
-	            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
-	        }
-	        return ResponseEntity.ok(casetas);
-	    }
+	@GetMapping("/misCasetas")
+	public ResponseEntity<List<Caseta>> getMisCasetas() {
+		List<Caseta> casetas = socioService.getMisCasetas();
+		if (casetas.isEmpty()) {
+			return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+		}
+		return ResponseEntity.ok(casetas);
+	}
 	
-
+	@GetMapping
+	@Operation(summary = "Listar todos los socios")
+	public ResponseEntity<List<Socio>> getAllSocios() {
+	    List<Socio> socios = socioService.findAllSocios();
+	    return ResponseEntity.ok(socios);
+	}
 }
