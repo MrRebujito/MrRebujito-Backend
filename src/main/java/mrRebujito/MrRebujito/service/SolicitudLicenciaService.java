@@ -24,6 +24,9 @@ public class SolicitudLicenciaService {
 	@Autowired
 	private JWTUtils JWTUtils;
 	
+	public SolicitudLicencia save(SolicitudLicencia s) {
+		return this.solicitudRepository.save(s);
+	}
 	
 	// Método para obtener una solicitud por id
 	public Optional<SolicitudLicencia> findSolicitudById(int id) {

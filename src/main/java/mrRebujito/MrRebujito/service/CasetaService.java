@@ -4,7 +4,6 @@ import java.util.List;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -30,6 +29,9 @@ public class CasetaService {
 	
 	@Autowired
     private SocioService socioService;
+	
+	@Autowired
+    private SolicitudLicenciaService solicitdLicenciaService;
 	
 	@Autowired
     private ProductoService productoService;
@@ -132,44 +134,38 @@ public class CasetaService {
 	
 	@Transactional
 	public SolicitudLicencia crearSolicitud(int ayuntamientoId) {
-	    
-		Caseta caseta = JWTUtils.userLogin();
+	    Caseta caseta = JWTUtils.userLogin();
 	    Optional<Ayuntamiento> ayuntamientoOptional = ayuntamientoService.findAyuntamientoById(ayuntamientoId);
 
-	    // Validar existencia de Caseta y Ayuntamiento
 	    if (caseta == null || ayuntamientoOptional.isEmpty()) {
-	        return null; // No se puede crear la solicitud si alguno no existe
+	        return null;
 	    }
 
 	    Ayuntamiento ayuntamiento = ayuntamientoOptional.get();
 
-	    // 1. REGLA DE NEGOCIO: Validar Solicitud Pendiente/Activa
-	    boolean solicitudActivaOPendiente = false;
-
+	    // Validar solicitud activa/pendiente
 	    for (SolicitudLicencia solicitudExistente : caseta.getSolicitudesLicencia()) {
 	        if (solicitudExistente.getAyuntamiento().getId() == ayuntamientoId) {
 	            EstadoLicencia estado = solicitudExistente.getEstadoLicencia();
 	            if (estado == EstadoLicencia.PENDIENTE || estado == EstadoLicencia.APROBADA) {
-	                solicitudActivaOPendiente = true;
-	                break;
+	                return null;
 	            }
 	        }
 	    }
 
-	    // Si ya existe una solicitud activa o pendiente, no creamos una nueva
-	    if (solicitudActivaOPendiente) {
-	        return null;
-	    }
-
-	    // 2. Creación y Guardado de la nueva Solicitud
+	    // Crear nueva solicitud
 	    SolicitudLicencia solicitud = new SolicitudLicencia();
 	    solicitud.setAyuntamiento(ayuntamiento);
 	    solicitud.setEstadoLicencia(EstadoLicencia.PENDIENTE);
 
-	    caseta.getSolicitudesLicencia().add(solicitud);
+	    // Guardar la solicitud primero
+	    SolicitudLicencia solicitudGuardada = solicitdLicenciaService.save(solicitud);
+	    
+	    // Añadir a la lista de la caseta
+	    caseta.getSolicitudesLicencia().add(solicitudGuardada);
 	    this.casetaRepository.save(caseta);
 
-	    return solicitud;
+	    return solicitudGuardada;
 	}
 	
 	/**

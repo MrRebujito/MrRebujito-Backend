@@ -27,6 +27,9 @@ public class PopulateDB implements CommandLineRunner {
 
     @Autowired
     private ProductoService productoService;
+    
+    @Autowired
+    private SolicitudLicenciaService solicitudLicenciaService;
 
     @Override
     public void run(String... args) throws Exception {
@@ -105,13 +108,14 @@ public class PopulateDB implements CommandLineRunner {
             SolicitudLicencia sol = new SolicitudLicencia();
             sol.setAyuntamiento(aytoSevilla);
             sol.setEstadoLicencia(EstadoLicencia.PENDIENTE);
+            solicitudLicenciaService.save(sol);
             
-            if (casetaLaFesta.getSolicitudesLicencia() == null) {
+            /*if (casetaLaFesta.getSolicitudesLicencia() == null) {
                 casetaLaFesta.setSolicitudesLicencia(new ArrayList<>());
             }
             
             casetaLaFesta.getSolicitudesLicencia().add(sol);
-            casetaService.saveCaseta(casetaLaFesta);
+            casetaService.saveCaseta(casetaLaFesta);*/
             System.out.println("Solicitud de licencia creada con éxito.");
         } catch (Exception e) {
             System.err.println("Error en la prueba de solicitud: " + e.getMessage());

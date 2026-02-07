@@ -9,9 +9,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -36,6 +34,17 @@ public class SolicitudLicenciaController {
 	        @ApiResponse(responseCode = "500", description = "Error interno del servidor")
 	    })
 	    public ResponseEntity<List<SolicitudLicencia>> getAllSolicitudesByCaseta() {
+	    	List<SolicitudLicencia> listSolicitud = solicitudService.findSolicitudesAll();
+	        return ResponseEntity.ok(listSolicitud);
+	    }
+	    
+	    @GetMapping
+	    @Operation(summary = "Obtener todas las solicitudes")
+	    @ApiResponses(value = {
+	        @ApiResponse(responseCode = "200", description = "Lista de solicitudes obtenida exitosamente"),
+	        @ApiResponse(responseCode = "500", description = "Error interno del servidor")
+	    })
+	    public ResponseEntity<List<SolicitudLicencia>> findSolicitudesAll() {
 	    	List<SolicitudLicencia> listSolicitud = solicitudService.findSolicitudesAll();
 	        return ResponseEntity.ok(listSolicitud);
 	    }
@@ -72,31 +81,14 @@ public class SolicitudLicenciaController {
 	        @ApiResponse(responseCode = "202", description = "Solicitud aceptada exitosamente"),
 	        @ApiResponse(responseCode = "400", description = "Error al aceptar la solicitud")
 	    })
-	    public void acceptSolicitud(@PathVariable int id) {
+	    public ResponseEntity<String> acceptSolicitud(@PathVariable int id) {  // Cambiado de void a ResponseEntity<String>
 	        Boolean verEstado = solicitudService.aceptarSolicitud(id);
 	        if (verEstado == false) {
-	            ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Error al aceptar la solicitud");
+	            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Error al aceptar la solicitud");
 	        } else {
-	            ResponseEntity.status(HttpStatus.ACCEPTED).body("Solicitud aceptada correctamente");
+	            return ResponseEntity.status(HttpStatus.ACCEPTED).body("Solicitud aceptada correctamente");
 	        }
 	    }
-
-	    @PutMapping("/rechazar/{id}")
-	    @Operation(summary = "Rechazar una solicitud por ID")
-	    @ApiResponses(value = {
-	        @ApiResponse(responseCode = "202", description = "Solicitud rechazada exitosamente"),
-	        @ApiResponse(responseCode = "400", description = "Error al rechazar la solicitud")
-	    })
-	    public ResponseEntity<String> refuseSolicitud(@PathVariable int id) {
-	        Boolean verEstado = solicitudService.rechazarSolicitud(id);
-	        if (verEstado == false) {
-	            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Error al rechazar la solicitud");
-	        } else {
-	            return ResponseEntity.status(HttpStatus.ACCEPTED).body("Solicitud rechazada correctamente");
-	        }
-	    }
-
-	  
 
 	    @DeleteMapping("/{id}")
 	    @Operation(summary = "Eliminar una solicitud por ID")
@@ -104,15 +96,12 @@ public class SolicitudLicenciaController {
 	        @ApiResponse(responseCode = "202", description = "Solicitud eliminada exitosamente"),
 	        @ApiResponse(responseCode = "400", description = "Error al borrar la solicitud")
 	    })
-	    public void delete(@PathVariable int id) {
+	    public ResponseEntity<String> delete(@PathVariable int id) {  // Cambiado de void a ResponseEntity<String>
 	        Boolean verEstadoBorrado = solicitudService.deleteSolicitud(id);
 	        if (verEstadoBorrado == false) {
-	            ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
+	            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Error al borrar la solicitud");
 	        } else {
-	            ResponseEntity.status(HttpStatus.ACCEPTED).build();
+	            return ResponseEntity.status(HttpStatus.ACCEPTED).body("Solicitud eliminada correctamente");
 	        }
 	    }
-   
-    
-
 }

@@ -60,7 +60,7 @@ public class SecurityConfiguration {
                 .requestMatchers(HttpMethod.GET, "/ayuntamiento", "/ayuntamiento/{id}").permitAll()
 
                 // 1c. Listar casetas y sus cartas (productos)
-                .requestMatchers(HttpMethod.GET, "/caseta", "/caseta/{id}").permitAll()
+                .requestMatchers(HttpMethod.GET, "/caseta", "/caseta/{id}", "/solicitud").permitAll()
                 .requestMatchers(HttpMethod.GET, "/caseta/carta/{id}", "/producto", "/producto/{id}").permitAll()
 
                 // ==========================================
