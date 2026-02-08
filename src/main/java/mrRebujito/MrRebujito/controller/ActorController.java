@@ -1,7 +1,5 @@
 package mrRebujito.MrRebujito.controller;
 
-import java.util.HashMap;
-import java.util.Map;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -11,6 +9,7 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -24,11 +23,11 @@ import mrRebujito.MrRebujito.entity.Ayuntamiento;
 import mrRebujito.MrRebujito.entity.Caseta;
 import mrRebujito.MrRebujito.entity.Roles;
 import mrRebujito.MrRebujito.entity.Socio;
+import mrRebujito.MrRebujito.security.JWTUtils;
 import mrRebujito.MrRebujito.service.ActorService;
 import mrRebujito.MrRebujito.service.AyuntamientoService;
 import mrRebujito.MrRebujito.service.CasetaService;
 import mrRebujito.MrRebujito.service.SocioService;
-import mrRebujito.MrRebujito.security.JWTUtils;
 
 @RestController
 public class ActorController {
@@ -57,7 +56,20 @@ public class ActorController {
 	        new UsernamePasswordAuthenticationToken(actorLogin.getUsername(), actorLogin.getPassword()));
 	    SecurityContextHolder.getContext().setAuthentication(authentication);
 	    String token = JWTUtils.generateToken(authentication);
-	    return ResponseEntity.ok(token); // Devuelve solo el token como string
+	    return ResponseEntity.ok(token); 
+	}
+	
+	@Operation(summary = "Obtener datos del actor logueado")
+	@GetMapping("/actorLogin")
+	public ResponseEntity<Actor> getActorLogueado() {
+		String username = SecurityContextHolder.getContext().getAuthentication().getName();
+		Optional<Actor> actor = actorService.findByUsername(username);
+		
+		if (actor.isPresent()) {
+			return ResponseEntity.ok(actor.get());
+		} else {
+			return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+		}
 	}
 
 	@Operation(summary = "Banear a un actor (ayuntamiento, administrador o caseta) por ID")
@@ -94,7 +106,7 @@ public class ActorController {
 		if (actorO.isPresent() && actorO.get().getRol() != Roles.ADMIN) {
 			actorO.get().setBaneado(false);
 			actorService.saveBasico(actorO.get());
-			return ResponseEntity.ok("Actor con ID " + actorId + " ha sido baneado.");
+			return ResponseEntity.ok("Actor con ID " + actorId + " ha sido desbaneado.");
 		} else {
 			return ResponseEntity.status(HttpStatus.NOT_FOUND).body("No se encontró un actor con ID " + actorId);
 		}
