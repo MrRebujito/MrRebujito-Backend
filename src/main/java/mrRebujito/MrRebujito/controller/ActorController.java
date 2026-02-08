@@ -52,14 +52,12 @@ public class ActorController {
 	private SocioService socioService;
 
 	@PostMapping("/login")
-	public ResponseEntity<Map<String, String>> login(@RequestBody ActorLogin actorLogin) {
-		Authentication authentication = authenticationManager.authenticate(
-				new UsernamePasswordAuthenticationToken(actorLogin.getUsername(), actorLogin.getPassword()));
-		SecurityContextHolder.getContext().setAuthentication(authentication);
-		String token = JWTUtils.generateToken(authentication);
-		Map<String, String> response = new HashMap<>();
-		response.put("token", token);
-		return ResponseEntity.ok(response);
+	public ResponseEntity<String> login(@RequestBody ActorLogin actorLogin) {
+	    Authentication authentication = authenticationManager.authenticate(
+	        new UsernamePasswordAuthenticationToken(actorLogin.getUsername(), actorLogin.getPassword()));
+	    SecurityContextHolder.getContext().setAuthentication(authentication);
+	    String token = JWTUtils.generateToken(authentication);
+	    return ResponseEntity.ok(token); // Devuelve solo el token como string
 	}
 
 	@Operation(summary = "Banear a un actor (ayuntamiento, administrador o caseta) por ID")
