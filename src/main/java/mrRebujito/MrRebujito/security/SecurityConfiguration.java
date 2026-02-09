@@ -44,7 +44,7 @@ public class SecurityConfiguration {
 
 				// ==========================================
 				// 1. AUTENTICACIÓN (Público)
-				.requestMatchers("/login", "/userLogin").permitAll()
+				.requestMatchers("/login", "/userLogin", "/administrador").permitAll()
 				.requestMatchers(HttpMethod.POST, "/socio", "/caseta", "/solicitud", "solicitud/crear-con-ayuntamiento/{ayuntamientoId}").permitAll()
 				.requestMatchers(HttpMethod.GET, "/socio", "/socio/{id}").permitAll()
 
@@ -58,7 +58,7 @@ public class SecurityConfiguration {
 				// ==========================================
 				// 3. ADMINISTRADOR (Req. Funcional 6)
 				// ==========================================
-				.requestMatchers("/admin/**").hasAuthority("ADMIN")
+				.requestMatchers("/administrador/**", "/administrador").hasAuthority("ADMIN")
 				// 6b. Registrar ayuntamientos (Solo admin puede crear ayuntamientos)
 				.requestMatchers(HttpMethod.POST, "/ayuntamiento").hasAuthority("ADMIN")
 				// Solo ADMIN puede editar/borrar cualquier ayuntamiento por ID

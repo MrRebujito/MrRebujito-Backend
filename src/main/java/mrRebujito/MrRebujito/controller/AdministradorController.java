@@ -40,9 +40,9 @@ public class AdministradorController {
 			@ApiResponse(responseCode = "500", description = "Error interno al crear el administrador") })
 	public ResponseEntity<String> saveAdministrador(@RequestBody Administrador administrador) {
 		String foto = administrador.getFoto();
-		if (foto == null || !foto.matches("^(https?):/?/?[^.]+\\.[^.]+\\.[^.]+$")) {
+		/*if (foto == null || !foto.matches("^(https?):/?/?[^.]+\\.[^.]+\\.[^.]+$")) {
 			return ResponseEntity.badRequest().body("La foto debe ser un enlace válido");
-		}
+		}*/
 		
 		try {
 			administradorService.saveAdministrador(administrador);
@@ -85,5 +85,14 @@ public class AdministradorController {
 		} else {
 			ResponseEntity.status(HttpStatus.NOT_FOUND);
 		}
+	}
+	
+	@GetMapping
+	@Operation(summary = "Recoger todos los administradores", description = "Busca y devuelve una lista de administradores")
+	@ApiResponses(value = { 
+			@ApiResponse(responseCode = "200", description = "Administrador eliminado correctamente"),
+			@ApiResponse(responseCode = "400", description = "Administrador no encontrado") })
+	public ResponseEntity<List<Administrador>> findAllAdministradores() {
+		return ResponseEntity.ok(administradorService.getAllAdministradores());
 	}
 }
