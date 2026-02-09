@@ -23,7 +23,7 @@ public abstract class Actor extends DomainEntity{
 	@Pattern(regexp = "^[\\w.-]+@[\\w.-]+\\.[a-zA-Z]{2,6}$")
 	private String correo;
 	
-	@Pattern(regexp = "^[6-9][0-9]{8}$")
+	@Pattern(regexp = "^$|^[6-9][0-9]{8}$") // para que sea opcional
 	private String telefono;
 	
 	private String direccion;

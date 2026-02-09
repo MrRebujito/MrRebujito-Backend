@@ -66,11 +66,6 @@ public class AyuntamientoController {
 			@ApiResponse(responseCode = "400", description = "La foto debe ser un enlace válido"),
 			@ApiResponse(responseCode = "500", description = "Error interno del servidor al crear el ayuntamiento") })
 	public ResponseEntity<String> saveAyuntamiento(@RequestBody Ayuntamiento ayun) {
-		String foto = ayun.getFoto();
-		if (foto != null && !foto.isEmpty() && !foto.matches("^(https?):/?/?[^.]+\\.[^.]+\\.[^.]+$")) {
-			return ResponseEntity.badRequest().body("La foto debe ser un enlace válido");
-		}
-		
 		try {
 			if (ayuntamientoService.findByUsername(ayun.getUsername()).isPresent()) {
 				return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("El username ya está en uso");
