@@ -43,13 +43,14 @@ public class SocioService {
     
     // Método para guardar un socio con contraseña encriptada
     public Socio saveSocio(Socio socio) {
-        // Encriptar la contraseña antes de guardar
+        // 1. Encriptar la contraseña si existe
         if (socio.getPassword() != null && !socio.getPassword().isEmpty()) {
             String encryptedPassword = passwordEncoder.encode(socio.getPassword());
             socio.setPassword(encryptedPassword);
         }
         
-            socio.setRol(Roles.SOCIO);
+        socio.setRol(Roles.SOCIO);
+        socio.setBaneado(false);
         
         return this.socioRepository.save(socio);
     }

@@ -29,7 +29,7 @@ import mrRebujito.MrRebujito.service.SocioService;
 @Component
 public class JWTUtils {
 	private static final String JWT_FIRMA = "Antonio";
-	private static final long EXTENCION_TOKEN = 5640;
+	private static final long EXTENCION_TOKEN = 3600000; //Cambiado esto para que el token dure una hora 
 	
 	@Autowired
 	@Lazy

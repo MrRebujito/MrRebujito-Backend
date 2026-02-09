@@ -60,28 +60,26 @@ public class SocioController {
 
 	@PutMapping
 	@Operation(summary = "Actualizar un socio existente")
-	@ApiResponses(value = { @ApiResponse(responseCode = "200", description = "Socio actualizado exitosamente"),
-			@ApiResponse(responseCode = "404", description = "Socio no encontrado"),
-			@ApiResponse(responseCode = "400", description = "Solicitud inválida") })
-	public void updateSocio(@RequestBody Socio updatedSocio) {
-		Socio response = socioService.updateSocio(updatedSocio);
-		if (response != null) {
-			ResponseEntity.status(HttpStatus.OK);
-		} else {
-			ResponseEntity.status(HttpStatus.NOT_FOUND);
-		}
+	public ResponseEntity<String> updateSocio(@RequestBody Socio updatedSocio) {
+	    Socio response = socioService.updateSocio(updatedSocio);
+	    
+	    if (response != null) {
+	        return ResponseEntity.ok("Datos del socio actualizados correctamente.");
+	    } else {
+	        return ResponseEntity.status(HttpStatus.NOT_FOUND)
+	                .body("Error: No se encontró el socio o no tiene permisos para actualizar.");
+	    }
 	}
 
 	@DeleteMapping
 	@Operation(summary = "Eliminar un socio logueado")
-	@ApiResponses(value = { @ApiResponse(responseCode = "200", description = "Socio eliminado exitosamente"),
-			@ApiResponse(responseCode = "404", description = "Socio no encontrado") })
-	public void deleteSocio() {
-		if (socioService.deleteSocio()) {
-			ResponseEntity.status(HttpStatus.OK);
-		} else {
-			ResponseEntity.status(HttpStatus.NOT_FOUND);
-		}
+	public ResponseEntity<String> deleteSocio() {
+	    if (socioService.deleteSocio()) {
+	        return ResponseEntity.ok("Socio eliminado exitosamente del sistema.");
+	    } else {
+	        return ResponseEntity.status(HttpStatus.NOT_FOUND)
+	                .body("Error: No se pudo eliminar el socio. Es posible que no esté autenticado.");
+	    }
 	}
 
 	@GetMapping("/misCasetas")
