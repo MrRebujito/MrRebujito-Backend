@@ -61,7 +61,23 @@ public class SecurityConfiguration {
 				.requestMatchers("/admin/**").hasAuthority("ADMIN")
 				// 6b. Registrar ayuntamientos (Solo admin puede crear ayuntamientos)
 				.requestMatchers(HttpMethod.POST, "/ayuntamiento").hasAuthority("ADMIN")
+				// Solo ADMIN puede editar/borrar cualquier ayuntamiento por ID
+				.requestMatchers(HttpMethod.PUT, "/ayuntamiento/{id}").hasAuthority("ADMIN")
+				.requestMatchers(HttpMethod.DELETE, "/ayuntamiento/{id}").hasAuthority("ADMIN")
 
+				// RUTAS NUEVAS DE AYUNTAMIENTO PARA EL FRONTEND
+				
+				// Ayuntamiento puede editar/borrar su propio perfil (sin ID en la ruta)
+				.requestMatchers(HttpMethod.PUT, "/ayuntamiento").hasAuthority("AYUNTAMIENTO")
+				.requestMatchers(HttpMethod.DELETE, "/ayuntamiento").hasAuthority("AYUNTAMIENTO")
+				
+				// Listar sus solicitudes
+				.requestMatchers(HttpMethod.GET, "/solicitud/ayuntamiento").hasAuthority("AYUNTAMIENTO")
+
+				// Aceptar/rechazar solicitudes
+				.requestMatchers(HttpMethod.PUT, "/solicitud/aceptar/{id}").hasAuthority("AYUNTAMIENTO")
+				.requestMatchers(HttpMethod.PUT, "/solicitud/{id}/rechazar").hasAuthority("AYUNTAMIENTO")
+				
 				// ==========================================
 				// 4. CASETA (Req. Funcional 3)
 				// ==========================================

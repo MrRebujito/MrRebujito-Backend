@@ -47,18 +47,18 @@ public class AyuntamientoService {
 		ayuntamiento.setPassword(passwordEncoder.encode(ayuntamiento.getPassword()));
 		return ayuntamientoRepository.save(ayuntamiento);
 	}
+	
 	public int getLicenciasAprobadas(int idAyuntamiento) {
         return licenciaRepository.countAprobadasByAyuntamientoId(idAyuntamiento, EstadoLicencia.APROBADA);
     }
 	
+	// Método para que el ayuntamiento actualice su propio perfil
+	@Transactional
 	public Ayuntamiento updateAyuntamiento(Ayuntamiento ayuntamientoU) {
 		Ayuntamiento ayuntamiento = JWTUtils.userLogin();
 
 	    if (ayuntamiento != null) {
-
-	    	//Comprobamos el numero de licencias aprobadas para evitar actualizar un valor inferior de licencias 
-	    	//totales del numero de licencias que tenemos aprobadas
-	        int licenciasAprobadas = getLicenciasAprobadas(ayuntamiento.getId());
+	    	int licenciasAprobadas = getLicenciasAprobadas(ayuntamiento.getId());
 
 	        if (ayuntamientoU.getLicenciaMax() < licenciasAprobadas) {
 	            throw new IllegalArgumentException(
@@ -79,6 +79,36 @@ public class AyuntamientoService {
 	    return null;
 	}
 	
+	// Método para que ADMIN actualice cualquier ayuntamiento por ID
+	@Transactional
+	public Ayuntamiento updateAyuntamientoById(int id, Ayuntamiento ayuntamientoU) {
+		Optional<Ayuntamiento> ayuntamientoOpt = ayuntamientoRepository.findById(id);
+
+	    if (ayuntamientoOpt.isPresent()) {
+	    	Ayuntamiento ayuntamiento = ayuntamientoOpt.get();
+	    	
+	    	int licenciasAprobadas = getLicenciasAprobadas(id);
+
+	        if (ayuntamientoU.getLicenciaMax() < licenciasAprobadas) {
+	            throw new IllegalArgumentException(
+	                "No se puede reducir el número máximo de licencias por debajo de las aprobadas (" + licenciasAprobadas + ")"
+	            );
+	        }
+
+	        ayuntamiento.setNombre(ayuntamientoU.getNombre());
+	        ayuntamiento.setFoto(ayuntamientoU.getFoto());
+	        ayuntamiento.setCorreo(ayuntamientoU.getCorreo());
+	        ayuntamiento.setTelefono(ayuntamientoU.getTelefono());
+	        ayuntamiento.setDireccion(ayuntamientoU.getDireccion());
+	        ayuntamiento.setLicenciaMax(ayuntamientoU.getLicenciaMax());
+
+	        return ayuntamientoRepository.save(ayuntamiento);
+	    }
+
+	    return null;
+	}
+	
+	// Método para que el ayuntamiento borre su propio perfil
 	@Transactional
 	public boolean deleteAyuntamiento() {
 		Ayuntamiento ayuntamiento = JWTUtils.userLogin();
@@ -89,5 +119,14 @@ public class AyuntamientoService {
 		return false;
 	}
 	
-	
+	// Método para que ADMIN borre cualquier ayuntamiento por ID
+	@Transactional
+	public boolean deleteAyuntamientoById(int id) {
+		Optional<Ayuntamiento> ayuntamientoOpt = ayuntamientoRepository.findById(id);
+		if (ayuntamientoOpt.isPresent()) {
+			ayuntamientoRepository.deleteById(id);
+			return true;
+		}
+		return false;
+	}
 }

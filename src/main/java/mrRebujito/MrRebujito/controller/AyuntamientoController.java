@@ -23,11 +23,8 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import mrRebujito.MrRebujito.entity.Ayuntamiento;
 import mrRebujito.MrRebujito.service.AyuntamientoService;
 
-//Permite realizar las operaciones GET, POST, PUT, DELETE a través de HTTP
 @RestController
-//Todo en esta clase empieza por socio
 @RequestMapping("/ayuntamiento")
-//Para la documentación
 @Tag(name = "Ayuntamiento", description = "Controlador para la gestión del ayuntamiento")
 public class AyuntamientoController {
 
@@ -52,44 +49,37 @@ public class AyuntamientoController {
 	@ApiResponses(value = { 
 			@ApiResponse(responseCode = "200", description = "Ayuntamiento encontrado"),
 			@ApiResponse(responseCode = "400", description = "Ayuntamiento no encontrado", content = @Content) })
-	// Método que te devuelve un ayuntamiento
 	public ResponseEntity<Ayuntamiento> findAyuntamientoById(@PathVariable int id) {
 		Optional<Ayuntamiento> opAyuntamiento = ayuntamientoService.findAyuntamientoById(id);
 
-		// Si el Optional contiene un ayuntamiento
 		if (opAyuntamiento.isPresent()) {
-			return ResponseEntity.ok(opAyuntamiento.get()); // Devolvemos 200 OK con el ayuntamiento
-		}
-		// Si el Optional está vacío (no encontró el ayuntamiento)
-		else {
-			return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null); // Devolvemos 404 ERROR
+			return ResponseEntity.ok(opAyuntamiento.get());
+		} else {
+			return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
 		}
 	}
 
-	@PostMapping // Peticiones HTTP POST
+	@PostMapping
 	@Operation(summary = "Crear un nuevo ayuntamiento", description = "Registra un nuevo ayuntamiento en la base de datos")
 	@ApiResponses(value = { 
 			@ApiResponse(responseCode = "200", description = "Ayuntamiento creado correctamente"),
 			@ApiResponse(responseCode = "400", description = "La foto debe ser un enlace válido"),
 			@ApiResponse(responseCode = "500", description = "Error interno del servidor al crear el ayuntamiento") })
-	// Método para guardar Ayuntamiento
 	public ResponseEntity<String> saveAyuntamiento(@RequestBody Ayuntamiento ayun) {
 		String foto = ayun.getFoto();
-		if (foto == null || !foto.matches("^(https?):/?/?[^.]+\\.[^.]+\\.[^.]+$")) {
+		if (foto != null && !foto.isEmpty() && !foto.matches("^(https?):/?/?[^.]+\\.[^.]+\\.[^.]+$")) {
 			return ResponseEntity.badRequest().body("La foto debe ser un enlace válido");
 		}
 		
 		try {
 			if (ayuntamientoService.findByUsername(ayun.getUsername()).isPresent()) {
-				ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
+				return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("El username ya está en uso");
 			} else {
 				Ayuntamiento a = ayuntamientoService.saveAyuntamiento(ayun);
 				if (a != null) {
 					return ResponseEntity.ok("Ayuntamiento creado correctamente");
 				}
-				
 			}
-			
 		} catch (Exception e) {
 			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
 					.body("Error interno al crear el ayuntamiento");
@@ -98,21 +88,20 @@ public class AyuntamientoController {
 				.body("Error interno al crear el ayuntamiento");
 	}
 
-	@PutMapping // Peticiones HTTP PUT
-	@Operation(summary = "Actualizar un ayuntamiento", description = "Actualiza la información de un ayuntamiento existente según su id")
+	@PutMapping("/{id}")
+	@Operation(summary = "Actualizar un ayuntamiento por ID (Solo ADMIN)", description = "Actualiza la información de un ayuntamiento existente según su id")
 	@ApiResponses(value = { 
 			@ApiResponse(responseCode = "200", description = "Ayuntamiento actualizado correctamente"),
 			@ApiResponse(responseCode = "400", description = "Ayuntamiento no encontrado o datos inválidos"),
 			@ApiResponse(responseCode = "500", description = "Error interno del servidor al actualizar el ayuntamiento") })
-	public ResponseEntity<String> update(@PathVariable int id, @RequestBody Ayuntamiento ayun) {
+	public ResponseEntity<String> updateById(@PathVariable int id, @RequestBody Ayuntamiento ayun) {
 		try {
 			String foto = ayun.getFoto();
-			if (foto == null || !foto.matches("^(https?):/?/?[^.]+\\.[^.]+\\.[^.]+$")) {
+			if (foto != null && !foto.isEmpty() && !foto.matches("^(https?):/?/?[^.]+\\.[^.]+\\.[^.]+$")) {
 				return ResponseEntity.badRequest().body("La foto debe ser un enlace válido");
 			}
 			
-			
-			if (ayuntamientoService.updateAyuntamiento(ayun) == null) {
+			if (ayuntamientoService.updateAyuntamientoById(id, ayun) == null) {
 				return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Ayuntamiento no encontrado");
 			} else {
 				return ResponseEntity.status(HttpStatus.OK).body("Ayuntamiento actualizado correctamente");
@@ -120,25 +109,57 @@ public class AyuntamientoController {
 		} catch (IllegalArgumentException e) {
 	        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("No se puede actualizar el numero de licencias por debajo de las licencias vigentes");
 	    }
+	}
+	
+	@PutMapping
+	@Operation(summary = "Actualizar mi perfil de ayuntamiento", description = "El ayuntamiento logueado actualiza su propia información")
+	@ApiResponses(value = { 
+			@ApiResponse(responseCode = "200", description = "Ayuntamiento actualizado correctamente"),
+			@ApiResponse(responseCode = "400", description = "Datos inválidos"),
+			@ApiResponse(responseCode = "500", description = "Error interno del servidor") })
+	public ResponseEntity<String> updateSelf(@RequestBody Ayuntamiento ayun) {
+		try {
+			String foto = ayun.getFoto();
+			if (foto != null && !foto.isEmpty() && !foto.matches("^(https?):/?/?[^.]+\\.[^.]+\\.[^.]+$")) {
+				return ResponseEntity.badRequest().body("La foto debe ser un enlace válido");
+			}
 			
+			if (ayuntamientoService.updateAyuntamiento(ayun) == null) {
+				return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Error al actualizar");
+			} else {
+				return ResponseEntity.status(HttpStatus.OK).body("Ayuntamiento actualizado correctamente");
+			}
+		} catch (IllegalArgumentException e) {
+	        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("No se puede actualizar el numero de licencias por debajo de las licencias vigentes");
+	    }
 	}
 
-	@DeleteMapping // Peticiones HTTP DELETE
-	@Operation(summary = "Eliminar un ayuntamiento", description = "Elimina un ayuntamiento existente de la base de datos utilizando su id")
+	@DeleteMapping("/{id}")
+	@Operation(summary = "Eliminar un ayuntamiento por ID (Solo ADMIN)", description = "Elimina un ayuntamiento existente de la base de datos utilizando su id")
 	@ApiResponses(value = { 
 			@ApiResponse(responseCode = "200", description = "Ayuntamiento eliminado correctamente"),
 			@ApiResponse(responseCode = "400", description = "Ayuntamiento no encontrado") })
-	public ResponseEntity<String> delete(@PathVariable int id) {
+	public ResponseEntity<String> deleteById(@PathVariable int id) {
 		Optional<Ayuntamiento> opAyuntamiento = ayuntamientoService.findAyuntamientoById(id);
 
 		if (opAyuntamiento.isPresent()) {
-			ayuntamientoService.deleteAyuntamiento();
-			return ResponseEntity.status(HttpStatus.OK).body("Ayuntamieto eliminado correctamente");
+			ayuntamientoService.deleteAyuntamientoById(id);
+			return ResponseEntity.status(HttpStatus.OK).body("Ayuntamiento eliminado correctamente");
 		} else {
-			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Ayuntamieto no encontrado");
+			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Ayuntamiento no encontrado");
 		}
 	}
 	
-	
-
+	@DeleteMapping
+	@Operation(summary = "Eliminar mi perfil de ayuntamiento", description = "El ayuntamiento logueado elimina su propio perfil")
+	@ApiResponses(value = { 
+			@ApiResponse(responseCode = "200", description = "Ayuntamiento eliminado correctamente"),
+			@ApiResponse(responseCode = "400", description = "Error al eliminar") })
+	public ResponseEntity<String> deleteSelf() {
+		if (ayuntamientoService.deleteAyuntamiento()) {
+			return ResponseEntity.status(HttpStatus.OK).body("Ayuntamiento eliminado correctamente");
+		} else {
+			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Error al eliminar ayuntamiento");
+		}
+	}
 }
