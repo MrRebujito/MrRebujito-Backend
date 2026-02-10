@@ -12,6 +12,7 @@ import org.springframework.security.config.annotation.authentication.configurati
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
+import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
@@ -24,125 +25,145 @@ import org.springframework.web.filter.CorsFilter;
 @EnableWebSecurity
 public class SecurityConfiguration {
 
-	@Autowired
-	private JWTAuthenticationFilter jwtAuthenticationFilter;
+    @Autowired
+    private JWTAuthenticationFilter jwtAuthenticationFilter;
 
-	@Bean
-	AuthenticationManager authenticationManager(AuthenticationConfiguration authenticationConfiguration)
-			throws Exception {
-		return authenticationConfiguration.getAuthenticationManager();
-	}
+    @Bean
+    AuthenticationManager authenticationManager(AuthenticationConfiguration authenticationConfiguration)
+            throws Exception {
+        return authenticationConfiguration.getAuthenticationManager();
+    }
 
-	@Bean
-	PasswordEncoder passwordEncoder() {
-		return new BCryptPasswordEncoder();
-	}
+    @Bean
+    PasswordEncoder passwordEncoder() {
+        return new BCryptPasswordEncoder();
+    }
 
-	@Bean
-	SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-		http.cors(Customizer.withDefaults()).csrf(AbstractHttpConfigurer::disable).authorizeHttpRequests(auth -> auth
+    @Bean
+    SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+        http
+            .cors(Customizer.withDefaults())
+            .csrf(AbstractHttpConfigurer::disable)
+            .sessionManagement(session -> session
+                .sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+            .authorizeHttpRequests(auth -> auth
+                // ==========================================
+                // RUTAS PÚBLICAS
+                // ==========================================
+                // Login
+                .requestMatchers(HttpMethod.POST, "/login").permitAll()
+                
+                // Registro público según requisitos 1a
+                .requestMatchers(HttpMethod.POST, 
+                    "/socio", 
+                    "/caseta").permitAll()
+                
+                // Listar ayuntamientos (requisito 1b)
+                .requestMatchers(HttpMethod.GET, 
+                    "/ayuntamiento", 
+                    "/ayuntamiento/{id}").permitAll()
+                
+                // Listar casetas y cartas (requisito 1c)
+                .requestMatchers(HttpMethod.GET, 
+                    "/caseta", 
+                    "/caseta/{id}",
+                    "/solicitud",
+                    "/solicitud/{id}",
+                    "/caseta/carta/{id}",
+                    "/producto",
+                    "/producto/{id}").permitAll()
+                
+                // Listar socios (público según tu configuración)
+                .requestMatchers(HttpMethod.GET, 
+                    "/socio",
+                    "/socio/{id}").permitAll()
+                
+                // Swagger
+                .requestMatchers(
+                    "/swagger-ui/**", 
+                    "/v3/api-docs/**").permitAll()
+                
+                // ==========================================
+                // RUTAS QUE REQUIEREN AUTENTICACIÓN
+                // ==========================================
+                // ¡IMPORTANTE! actorLogin debe ser AUTENTICADO, no público
+                .requestMatchers(HttpMethod.GET, "/actorLogin").authenticated()
+                
+                // ==========================================
+                // ADMINISTRADOR
+                // ==========================================
+                .requestMatchers("/administrador/**").hasAuthority("ADMIN")
+                .requestMatchers(HttpMethod.POST, "/administrador").hasAuthority("ADMIN")
+                
+                // Solo ADMIN puede crear/editar/borrar ayuntamientos por ID
+                .requestMatchers(HttpMethod.POST, "/ayuntamiento").hasAuthority("ADMIN")
+                .requestMatchers(HttpMethod.PUT, "/ayuntamiento/{id}").hasAuthority("ADMIN")
+                .requestMatchers(HttpMethod.DELETE, "/ayuntamiento/{id}").hasAuthority("ADMIN")
+                
+                // ==========================================
+                // AYUNTAMIENTO
+                // ==========================================
+                // Editar propio perfil (sin ID)
+                .requestMatchers(HttpMethod.PUT, "/ayuntamiento").hasAuthority("AYUNTAMIENTO")
+                .requestMatchers(HttpMethod.DELETE, "/ayuntamiento").hasAuthority("AYUNTAMIENTO")
+                
+                // Listar solicitudes del ayuntamiento
+                .requestMatchers(HttpMethod.GET, "/solicitud/ayuntamiento").hasAuthority("AYUNTAMIENTO")
+                
+                // Aceptar/rechazar solicitudes
+                .requestMatchers(HttpMethod.PUT, 
+                    "/solicitud/aceptar/{id}",
+                    "/solicitud/{id}/rechazar").hasAuthority("AYUNTAMIENTO")
+                
+                // ==========================================
+                // CASETA
+                // ==========================================
+                // Gestionar solicitudes
+                .requestMatchers(HttpMethod.POST, "/solicitud").hasAuthority("CASETA")
+                .requestMatchers(HttpMethod.DELETE, "/solicitud/{id}").hasAuthority("CASETA")
+                .requestMatchers(HttpMethod.GET, "/solicitud/Caseta").hasAuthority("CASETA")
+                
+                // Gestionar carta/productos
+                .requestMatchers(HttpMethod.POST, "/producto").hasAuthority("CASETA")
+                .requestMatchers(HttpMethod.PUT, "/producto/{id}").hasAuthority("CASETA")
+                .requestMatchers(HttpMethod.DELETE, "/producto/{id}").hasAuthority("CASETA")
+                
+                // Gestionar socios
+                .requestMatchers(HttpMethod.POST, "/caseta/socios/{socioId}").hasAuthority("CASETA")
+                .requestMatchers(HttpMethod.DELETE, "/caseta/socios/{socioId}").hasAuthority("CASETA")
+                
+                // Editar datos propios
+                .requestMatchers(HttpMethod.PUT, "/caseta").hasAuthority("CASETA")
+                .requestMatchers(HttpMethod.DELETE, "/caseta").hasAuthority("CASETA")
+                
+                // ==========================================
+                // SOCIO
+                // ==========================================
+                // Listar casetas propias
+                .requestMatchers(HttpMethod.GET, "/socio/misCasetas").hasAuthority("SOCIO")
+                
+                // Editar datos propios
+                .requestMatchers(HttpMethod.PUT, "/socio").hasAuthority("SOCIO")
+                .requestMatchers(HttpMethod.DELETE, "/socio").hasAuthority("SOCIO")
+                
+                // ==========================================
+                // TODAS LAS DEMÁS RUTAS
+                // ==========================================
+                .anyRequest().authenticated())
+            .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
 
-				// ==========================================
-				// 1. AUTENTICACIÓN (Público)
-				.requestMatchers("/login", "/actorLogin", "/administrador").permitAll()
-				.requestMatchers(HttpMethod.POST, "/socio", "/caseta", "/solicitud", "solicitud/crear-con-ayuntamiento/{ayuntamientoId}").permitAll()
-				.requestMatchers(HttpMethod.GET, "/socio", "/socio/{id}").permitAll()
+        return http.build();
+    }
 
-				// 1b. Listar ayuntamientos
-				.requestMatchers(HttpMethod.GET, "/ayuntamiento", "/ayuntamiento/{id}").permitAll()
-
-				// 1c. Listar casetas y sus cartas (productos)
-				.requestMatchers(HttpMethod.GET, "/caseta", "/caseta/{id}", "/solicitud", "/solicitud/{id}", "/socio").permitAll()
-				.requestMatchers(HttpMethod.GET, "/caseta/carta/{id}", "/producto", "/producto/{id}").permitAll()
-
-				// ==========================================
-				// 3. ADMINISTRADOR (Req. Funcional 6)
-				// ==========================================
-				.requestMatchers("/administrador/**", "/administrador").hasAuthority("ADMIN")
-				// 6b. Registrar ayuntamientos (Solo admin puede crear ayuntamientos)
-				.requestMatchers(HttpMethod.POST, "/ayuntamiento").hasAuthority("ADMIN")
-				// Solo ADMIN puede editar/borrar cualquier ayuntamiento por ID
-				.requestMatchers(HttpMethod.PUT, "/ayuntamiento/{id}").hasAuthority("ADMIN")
-				.requestMatchers(HttpMethod.DELETE, "/ayuntamiento/{id}").hasAuthority("ADMIN")
-
-				// RUTAS NUEVAS DE AYUNTAMIENTO PARA EL FRONTEND
-				
-				// Ayuntamiento puede editar/borrar su propio perfil (sin ID en la ruta)
-				.requestMatchers(HttpMethod.PUT, "/ayuntamiento").hasAuthority("AYUNTAMIENTO")
-				.requestMatchers(HttpMethod.DELETE, "/ayuntamiento").hasAuthority("AYUNTAMIENTO")
-				
-				// Listar sus solicitudes
-				.requestMatchers(HttpMethod.GET, "/solicitud/ayuntamiento").hasAuthority("AYUNTAMIENTO")
-
-				// Aceptar/rechazar solicitudes
-				.requestMatchers(HttpMethod.PUT, "/solicitud/aceptar/{id}").hasAuthority("AYUNTAMIENTO")
-				.requestMatchers(HttpMethod.PUT, "/solicitud/{id}/rechazar").hasAuthority("AYUNTAMIENTO")
-				
-				// ==========================================
-				// 4. CASETA (Req. Funcional 3)
-				// ==========================================
-				// 3a. Gestionar solicitudes (Listar propias, crear, borrar si es pendiente)
-				.requestMatchers(HttpMethod.POST, "/solicitud").hasAuthority("CASETA")
-				.requestMatchers(HttpMethod.DELETE, "/solicitud/{id}").hasAuthority("CASETA")
-				.requestMatchers(HttpMethod.GET, "/solicitud/Caseta").hasAuthority("CASETA")
-
-				// 3b. Gestionar carta (Añadir/Borrar/Modificar productos)
-				.requestMatchers(HttpMethod.POST, "/producto").hasAuthority("CASETA")
-				.requestMatchers(HttpMethod.PUT, "/producto/{id}").hasAuthority("CASETA")
-				.requestMatchers(HttpMethod.DELETE, "/producto/{id}").hasAuthority("CASETA")
-
-				// 3c. Añadir/Eliminar socios
-				.requestMatchers(HttpMethod.POST, "/caseta/socios/{socioId}").hasAuthority("CASETA")
-				.requestMatchers(HttpMethod.DELETE, "/caseta/socios/{socioId}").hasAuthority("CASETA")
-
-				// Editar sus propios datos
-				.requestMatchers(HttpMethod.PUT, "/caseta/").hasAuthority("CASETA")
-				.requestMatchers(HttpMethod.DELETE, "/caseta/").hasAuthority("CASETA")
-
-				// ==========================================
-				// 5. AYUNTAMIENTO (Req. Funcional 4)
-				// ==========================================
-				// 4a. Listar sus casetas aceptadas (Ruta privada del ayuntamiento)
-				.requestMatchers(HttpMethod.GET, "/solicitud/ayuntamiento").hasAuthority("AYUNTAMIENTO")
-
-				// IMPORTANTE: PUT porque cambia el estado de la BD
-				.requestMatchers(HttpMethod.PUT, "/solicitud/{id}/aceptar").hasAuthority("AYUNTAMIENTO")
-				.requestMatchers(HttpMethod.PUT, "/solicitud/{id}/rechazar").hasAuthority("AYUNTAMIENTO")
-
-				// Editar sus propios datos
-				.requestMatchers(HttpMethod.PUT, "/ayuntamiento/").hasAuthority("AYUNTAMIENTO")
-
-				// ==========================================
-				// 6. SOCIO (Req. Funcional 5)
-				// ==========================================
-				// 5b. Listar casetas a las que pertenece
-				.requestMatchers(HttpMethod.GET, "/socio/misCasetas").hasAuthority("SOCIO")
-
-				// Editar sus datos (Req 2b)
-				.requestMatchers(HttpMethod.PUT, "/socio").hasAuthority("SOCIO")
-				.requestMatchers(HttpMethod.DELETE, "/socio").hasAuthority("SOCIO")
-				.requestMatchers(HttpMethod.GET, "/socio", "/socio/{id}").permitAll()
-
-				// SWAGGER (Documentación)
-				.requestMatchers("/swagger-ui/**", "/v3/api-docs/**").permitAll()
-
-				// CUALQUIER OTRA RUTA
-				.anyRequest().authenticated())
-				.addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
-
-		return http.build();
-	}
-
-	// Configuración de CORS para permitir peticiones desde Angular (localhost:4200)
-	@Bean
-	public CorsFilter corsFilter() {
-		UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-		CorsConfiguration config = new CorsConfiguration();
-		config.setAllowedOrigins(List.of("http://localhost:4200"));
-		config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
-		config.setAllowedHeaders(List.of("Authorization", "Content-Type"));
-		config.setAllowCredentials(true);
-		source.registerCorsConfiguration("/**", config);
-		return new CorsFilter(source);
-	}
+    @Bean
+    public CorsFilter corsFilter() {
+        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+        CorsConfiguration config = new CorsConfiguration();
+        config.setAllowedOrigins(List.of("http://localhost:4200"));
+        config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
+        config.setAllowedHeaders(List.of("Authorization", "Content-Type"));
+        config.setAllowCredentials(true);
+        source.registerCorsConfiguration("/**", config);
+        return new CorsFilter(source);
+    }
 }
