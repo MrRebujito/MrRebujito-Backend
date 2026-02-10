@@ -44,7 +44,7 @@ public class SecurityConfiguration {
 
 				// ==========================================
 				// 1. AUTENTICACIÓN (Público)
-				.requestMatchers("/login", "/userLogin", "/administrador").permitAll()
+				.requestMatchers("/login", "/actorLogin", "/administrador").permitAll()
 				.requestMatchers(HttpMethod.POST, "/socio", "/caseta", "/solicitud", "solicitud/crear-con-ayuntamiento/{ayuntamientoId}").permitAll()
 				.requestMatchers(HttpMethod.GET, "/socio", "/socio/{id}").permitAll()
 
