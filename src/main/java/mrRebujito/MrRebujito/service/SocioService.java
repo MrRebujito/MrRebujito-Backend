@@ -8,6 +8,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import mrRebujito.MrRebujito.entity.Actor;
 import mrRebujito.MrRebujito.entity.Ayuntamiento;
 import mrRebujito.MrRebujito.entity.Caseta;
 import mrRebujito.MrRebujito.entity.Roles;
@@ -30,8 +31,10 @@ public class SocioService {
     // Método para obtener un socio
     public Optional<Socio> findSocioById(int id){
     	Optional<Socio> s = socioRepository.findById(id);
+    	Actor a = jwtUtils.userLogin();
     	
-    	if (s.get() != jwtUtils.userLogin()) {
+    	// soy muy bueno
+    	if (s.get() != a && a.getRol() == Roles.SOCIO) {
     		return null;
     	}
     	return s;
