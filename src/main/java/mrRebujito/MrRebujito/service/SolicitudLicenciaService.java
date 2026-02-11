@@ -12,6 +12,7 @@ import mrRebujito.MrRebujito.entity.Caseta;
 import mrRebujito.MrRebujito.entity.EstadoLicencia;
 import mrRebujito.MrRebujito.entity.SolicitudLicencia;
 import mrRebujito.MrRebujito.repository.AyuntamientoRepository;
+import mrRebujito.MrRebujito.repository.CasetaRepository;
 import mrRebujito.MrRebujito.repository.SolicitudLicenciaRepository;
 import mrRebujito.MrRebujito.security.JWTUtils;
 
@@ -25,28 +26,39 @@ public class SolicitudLicenciaService {
 
 	@Autowired
 	private AyuntamientoRepository ayuntamientoRepository;
+	
+	@Autowired
+	private CasetaRepository casetaRepository;
+
 
 	// Método para crear solicitud solo con ID de ayuntamiento
 	@Transactional
 	public SolicitudLicencia crearSolicitudConAyuntamiento(int ayuntamientoId) {
-		// 1. Buscar el ayuntamiento por ID
-		Optional<Ayuntamiento> ayuntamientoOpt = ayuntamientoRepository.findById(ayuntamientoId);
-		if (!ayuntamientoOpt.isPresent()) {
-			throw new IllegalArgumentException("Ayuntamiento con ID " + ayuntamientoId + " no encontrado");
-		}
-
-		Ayuntamiento ayuntamiento = ayuntamientoOpt.get();
-
-		// 2. Crear nueva solicitud
-		SolicitudLicencia nuevaSolicitud = new SolicitudLicencia();
-		nuevaSolicitud.setAyuntamiento(ayuntamiento);
-		nuevaSolicitud.setEstadoLicencia(EstadoLicencia.PENDIENTE);
-
-		// 3. Asociar la solicitud con la caseta logueada (si aplica)
-		// Esto depende de tu lógica de negocio
-
-		// 4. Guardar la solicitud
-		return solicitudRepository.save(nuevaSolicitud);
+		// 1. Obtener la caseta logueada
+	    Object userLogin = JWTUtils.userLogin();
+	    if (!(userLogin instanceof Caseta)) {
+	        throw new IllegalStateException("Solo las casetas pueden crear solicitudes de licencia");
+	    }
+	    Caseta caseta = (Caseta) userLogin;
+	    
+	    // 2. Buscar el ayuntamiento por ID
+	    Ayuntamiento ayuntamiento = ayuntamientoRepository.findById(ayuntamientoId)
+	        .orElseThrow(() -> new IllegalArgumentException("Ayuntamiento no encontrado"));
+	    
+	    // 3. Crear nueva solicitud (SIN caseta)
+	    SolicitudLicencia nuevaSolicitud = new SolicitudLicencia();
+	    nuevaSolicitud.setAyuntamiento(ayuntamiento);
+	    nuevaSolicitud.setEstadoLicencia(EstadoLicencia.PENDIENTE);
+	    
+	    // 4. Guardar la solicitud PRIMERO
+	    SolicitudLicencia solicitudGuardada = solicitudRepository.save(nuevaSolicitud);
+	    
+	    // 5. ✅ RELACIÓN MANUAL: Añadir la solicitud a la caseta
+	    caseta.getSolicitudesLicencia().add(solicitudGuardada);
+	    casetaRepository.save(caseta);
+	    solicitudRepository.save(nuevaSolicitud);
+	    
+	    return solicitudGuardada;
 	}
 
 	// Método existente para guardar solicitud completa
