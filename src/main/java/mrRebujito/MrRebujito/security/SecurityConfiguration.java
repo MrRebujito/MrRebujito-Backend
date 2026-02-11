@@ -105,8 +105,8 @@ public class SecurityConfiguration {
                 .requestMatchers(HttpMethod.POST, "/socio").hasAuthority("ADMIN")
 
                 // ADMIN puede ver la lista de socios
-                .requestMatchers(HttpMethod.GET, "/socio", "/socio/{id}").hasAnyAuthority("ADMIN", "CASETA")
-
+             // En SecurityConfiguration.java:
+                .requestMatchers(HttpMethod.GET, "/socio", "/socio/{id}").hasAnyAuthority("ADMIN", "CASETA", "SOCIO")
                 // ADMIN puede banear y desbanear actores
                 .requestMatchers(HttpMethod.PUT, "/banear/{actorId}").hasAuthority("ADMIN")
                 .requestMatchers(HttpMethod.PUT, "/desbanear/{actorId}").hasAuthority("ADMIN")

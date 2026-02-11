@@ -85,9 +85,6 @@ public class SocioController {
 	@GetMapping("/misCasetas")
 	public ResponseEntity<List<Caseta>> getMisCasetas() {
 		List<Caseta> casetas = socioService.getMisCasetas();
-		if (casetas.isEmpty()) {
-			return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
-		}
 		return ResponseEntity.ok(casetas);
 	}
 	
