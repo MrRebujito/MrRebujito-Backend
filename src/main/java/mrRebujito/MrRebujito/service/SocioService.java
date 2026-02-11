@@ -29,7 +29,12 @@ public class SocioService {
     
     // Método para obtener un socio
     public Optional<Socio> findSocioById(int id){
-        return this.socioRepository.findById(id);
+    	Optional<Socio> s = socioRepository.findById(id);
+    	
+    	if (s.get() != jwtUtils.userLogin()) {
+    		return null;
+    	}
+    	return s;
     }
     
     public Optional<Socio> findByUsername(String username) {
