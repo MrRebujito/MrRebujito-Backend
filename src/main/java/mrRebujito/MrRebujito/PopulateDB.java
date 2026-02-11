@@ -83,6 +83,7 @@ public class PopulateDB implements CommandLineRunner {
         socio1.setPassword("pass123");
         socio1.setCorreo("whereisgabo@gmail.com");
         socio1.setTelefono("600111222");
+        socio1.setFoto("https://img.blogs.es/vizzagency/wp-content/uploads/2022/09/illojuanedit-819x1024.jpg");
         socioService.saveSocio(socio1);
 
         // 5. Crear Casetas
