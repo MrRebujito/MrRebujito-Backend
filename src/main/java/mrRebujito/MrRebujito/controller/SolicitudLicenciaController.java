@@ -94,6 +94,19 @@ public class SolicitudLicenciaController {
 			return ResponseEntity.status(HttpStatus.ACCEPTED).body("Solicitud aceptada correctamente");
 		}
 	}
+	
+	@PutMapping("/rechazar/{id}")
+	@Operation(summary = "Rechazar una solicitud por ID")
+	@ApiResponses(value = { @ApiResponse(responseCode = "202", description = "Solicitud rechazada exitosamente"),
+			@ApiResponse(responseCode = "400", description = "Error al rechazar la solicitud") })
+	public ResponseEntity<String> rechazarSolicitud(@PathVariable int id) {
+		Boolean verEstado = solicitudService.rechazarSolicitud(id);
+		if (verEstado == false) {
+			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Error al rechazar la solicitud");
+		} else {
+			return ResponseEntity.status(HttpStatus.ACCEPTED).body("Solicitud rechazada correctamente");
+		}
+	}
 
 	@DeleteMapping("/{id}")
 	@Operation(summary = "Eliminar una solicitud por ID")

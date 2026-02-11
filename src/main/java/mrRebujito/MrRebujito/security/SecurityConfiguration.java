@@ -21,6 +21,10 @@ import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import org.springframework.web.filter.CorsFilter;
 
+/**
+ * Configuracion central de seguridad de la aplicacion MrRebujito.
+ * Define que endpoints son publicos y cuales requieren autenticacion o un rol concreto.
+ */
 @Configuration
 @EnableWebSecurity
 public class SecurityConfiguration {
@@ -28,17 +32,23 @@ public class SecurityConfiguration {
     @Autowired
     private JWTAuthenticationFilter jwtAuthenticationFilter;
 
+    // Gestor de autenticacion necesario para el login con JWT
     @Bean
     AuthenticationManager authenticationManager(AuthenticationConfiguration authenticationConfiguration)
             throws Exception {
         return authenticationConfiguration.getAuthenticationManager();
     }
 
+    // Encoder de contraseñas con BCrypt
     @Bean
     PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
     }
 
+    /**
+     * Cadena de filtros de seguridad.
+     * Aqui se definen todas las reglas de acceso a los endpoints de la API.
+     */
     @Bean
     SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
@@ -47,114 +57,131 @@ public class SecurityConfiguration {
             .sessionManagement(session -> session
                 .sessionCreationPolicy(SessionCreationPolicy.STATELESS))
             .authorizeHttpRequests(auth -> auth
+
                 // ==========================================
-                // RUTAS PÚBLICAS
+                // RUTAS PUBLICAS (sin autenticacion)
                 // ==========================================
-                // Login
+
+                // Login accesible para todos
                 .requestMatchers(HttpMethod.POST, "/login").permitAll()
-                
-                // Registro público según requisitos 1a
-                .requestMatchers(HttpMethod.POST, 
-                    "/socio", 
-                    "/caseta").permitAll()
-                
-                // Listar ayuntamientos (requisito 1b)
-                .requestMatchers(HttpMethod.GET, 
-                    "/ayuntamiento", 
-                    "/ayuntamiento/{id}").permitAll()
-                
-                // Listar casetas y cartas (requisito 1c)
-                .requestMatchers(HttpMethod.GET, 
-                    "/caseta", 
+
+                // Registro publico SOLO de casetas (socios NO se registran solos)
+                .requestMatchers(HttpMethod.POST, "/caseta").permitAll()
+
+                // Listar ayuntamientos es publico (cualquiera puede verlos)
+                .requestMatchers(HttpMethod.GET, "/ayuntamiento", "/ayuntamiento/{id}").permitAll()
+
+                // Listar casetas y cartas de productos es publico
+                .requestMatchers(HttpMethod.GET,
+                    "/caseta",
                     "/caseta/{id}",
-                    "/solicitud",
-                    "/solicitud/{id}",
                     "/caseta/carta/{id}",
                     "/producto",
                     "/producto/{id}").permitAll()
-                
-                // Listar socios (público según tu configuración)
-                .requestMatchers(HttpMethod.GET, 
-                    "/socio",
-                    "/socio/{id}").permitAll()
-                
-                // Swagger
-                .requestMatchers(
-                    "/swagger-ui/**", 
-                    "/v3/api-docs/**").permitAll()
-                
+
+                // Swagger para documentacion
+                .requestMatchers("/swagger-ui/**", "/v3/api-docs/**").permitAll()
+
                 // ==========================================
-                // RUTAS QUE REQUIEREN AUTENTICACIÓN
+                // RUTAS AUTENTICADAS (cualquier usuario logueado)
                 // ==========================================
-                // ¡IMPORTANTE! actorLogin debe ser AUTENTICADO, no público
+
+                // Obtener datos del actor logueado
                 .requestMatchers(HttpMethod.GET, "/actorLogin").authenticated()
-                
+
                 // ==========================================
-                // ADMINISTRADOR
+                // ADMINISTRADOR - control total
                 // ==========================================
+
+                // CRUD completo de administradores
                 .requestMatchers("/administrador/**").hasAuthority("ADMIN")
                 .requestMatchers(HttpMethod.POST, "/administrador").hasAuthority("ADMIN")
-                
-                // Solo ADMIN puede crear/editar/borrar ayuntamientos por ID
+
+                // ADMIN crea, edita y borra ayuntamientos por ID
                 .requestMatchers(HttpMethod.POST, "/ayuntamiento").hasAuthority("ADMIN")
                 .requestMatchers(HttpMethod.PUT, "/ayuntamiento/{id}").hasAuthority("ADMIN")
                 .requestMatchers(HttpMethod.DELETE, "/ayuntamiento/{id}").hasAuthority("ADMIN")
-                
+
+                // ADMIN crea socios (los socios NO se registran solos)
+                .requestMatchers(HttpMethod.POST, "/socio").hasAuthority("ADMIN")
+
+                // ADMIN puede ver la lista de socios
+                .requestMatchers(HttpMethod.GET, "/socio", "/socio/{id}").hasAuthority("ADMIN")
+
+                // ADMIN puede banear y desbanear actores
+                .requestMatchers(HttpMethod.PUT, "/banear/{actorId}").hasAuthority("ADMIN")
+                .requestMatchers(HttpMethod.PUT, "/desbanear/{actorId}").hasAuthority("ADMIN")
+
+                // ADMIN tiene control total sobre solicitudes de licencia
+                .requestMatchers(HttpMethod.POST, "/solicitud").hasAuthority("ADMIN")
+                .requestMatchers(HttpMethod.POST, "/solicitud/crear-con-ayuntamiento/{ayuntamientoId}").hasAuthority("ADMIN")
+                .requestMatchers(HttpMethod.PUT, "/solicitud/{id}").hasAuthority("ADMIN")
+                .requestMatchers(HttpMethod.DELETE, "/solicitud/{id}").hasAnyAuthority("ADMIN", "CASETA")
+
                 // ==========================================
                 // AYUNTAMIENTO
                 // ==========================================
-                // Editar propio perfil (sin ID)
+
+                // Editar y borrar su propio perfil (sin ID en la ruta)
                 .requestMatchers(HttpMethod.PUT, "/ayuntamiento").hasAuthority("AYUNTAMIENTO")
                 .requestMatchers(HttpMethod.DELETE, "/ayuntamiento").hasAuthority("AYUNTAMIENTO")
-                
-                // Listar solicitudes del ayuntamiento
-                .requestMatchers(HttpMethod.GET, "/solicitud/ayuntamiento").hasAuthority("AYUNTAMIENTO")
-                
-                // Aceptar/rechazar solicitudes
-                .requestMatchers(HttpMethod.PUT, 
-                    "/solicitud/aceptar/{id}",
-                    "/solicitud/{id}/rechazar").hasAuthority("AYUNTAMIENTO")
-                
+
+                // Ver solicitudes dirigidas a su ayuntamiento
+                .requestMatchers(HttpMethod.GET, "/solicitud/Ayuntamiento").hasAuthority("AYUNTAMIENTO")
+
+                // Cambiar estado de solicitudes (aceptar/rechazar)
+                .requestMatchers(HttpMethod.PUT, "/solicitud/aceptar/{id}").hasAuthority("AYUNTAMIENTO")
+                .requestMatchers(HttpMethod.PUT, "/solicitud/rechazar/{id}").hasAuthority("AYUNTAMIENTO")
+
                 // ==========================================
                 // CASETA
                 // ==========================================
-                // Gestionar solicitudes
-                .requestMatchers(HttpMethod.POST, "/solicitud").hasAuthority("CASETA")
-                .requestMatchers(HttpMethod.DELETE, "/solicitud/{id}").hasAuthority("CASETA")
-                .requestMatchers(HttpMethod.GET, "/solicitud/Caseta").hasAuthority("CASETA")
-                
-                // Gestionar carta/productos
+
+                // Editar y borrar su propio perfil
+                .requestMatchers(HttpMethod.PUT, "/caseta").hasAuthority("CASETA")
+                .requestMatchers(HttpMethod.DELETE, "/caseta").hasAuthority("CASETA")
+
+                // Crear solicitud de licencia a un ayuntamiento
+                .requestMatchers(HttpMethod.POST, "/caseta/solicitud/{ayuntamientoId}").hasAuthority("CASETA")
+
+                // Ver sus propios socios y gestionarlos
+                .requestMatchers(HttpMethod.GET, "/caseta/socios").hasAuthority("CASETA")
+                .requestMatchers(HttpMethod.GET, "/caseta/anadirSocio/{idSocio}").hasAuthority("CASETA")
+                .requestMatchers(HttpMethod.GET, "/caseta/eliminarSocio/{idSocio}").hasAuthority("CASETA")
+
+                // Gestionar carta de productos
+                .requestMatchers(HttpMethod.GET, "/caseta/carta").hasAuthority("CASETA")
                 .requestMatchers(HttpMethod.POST, "/producto").hasAuthority("CASETA")
                 .requestMatchers(HttpMethod.PUT, "/producto/{id}").hasAuthority("CASETA")
                 .requestMatchers(HttpMethod.DELETE, "/producto/{id}").hasAuthority("CASETA")
-                
-                // Gestionar socios
-                .requestMatchers(HttpMethod.POST, "/caseta/socios/{socioId}").hasAuthority("CASETA")
-                .requestMatchers(HttpMethod.DELETE, "/caseta/socios/{socioId}").hasAuthority("CASETA")
-                
-                // Editar datos propios
-                .requestMatchers(HttpMethod.PUT, "/caseta").hasAuthority("CASETA")
-                .requestMatchers(HttpMethod.DELETE, "/caseta").hasAuthority("CASETA")
-                
+
+                // Ver solicitudes (todas las publicas para filtrar las suyas en frontend)
+                .requestMatchers(HttpMethod.GET, "/solicitud", "/solicitud/{id}").hasAnyAuthority("CASETA", "ADMIN", "AYUNTAMIENTO")
+
                 // ==========================================
                 // SOCIO
                 // ==========================================
-                // Listar casetas propias
+
+                // Ver las casetas a las que pertenece
                 .requestMatchers(HttpMethod.GET, "/socio/misCasetas").hasAuthority("SOCIO")
-                
-                // Editar datos propios
+
+                // Editar y borrar su propio perfil
                 .requestMatchers(HttpMethod.PUT, "/socio").hasAuthority("SOCIO")
                 .requestMatchers(HttpMethod.DELETE, "/socio").hasAuthority("SOCIO")
-                
+
                 // ==========================================
-                // TODAS LAS DEMÁS RUTAS
+                // TODAS LAS DEMAS RUTAS requieren autenticacion
                 // ==========================================
                 .anyRequest().authenticated())
+
             .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
     }
 
+    /**
+     * Configuracion de CORS para permitir peticiones desde Angular (localhost:4200)
+     */
     @Bean
     public CorsFilter corsFilter() {
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
