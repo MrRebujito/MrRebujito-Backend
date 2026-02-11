@@ -94,8 +94,7 @@ public class SecurityConfiguration {
                 // ==========================================
 
                 // CRUD completo de administradores
-                .requestMatchers("/administrador/**").hasAuthority("ADMIN")
-                .requestMatchers(HttpMethod.POST, "/administrador").hasAuthority("ADMIN")
+                .requestMatchers("/administrador/**", "/administrador").hasAuthority("ADMIN")
 
                 // ADMIN crea, edita y borra ayuntamientos por ID
                 .requestMatchers(HttpMethod.POST, "/ayuntamiento").hasAuthority("ADMIN")
@@ -127,7 +126,7 @@ public class SecurityConfiguration {
                 .requestMatchers(HttpMethod.DELETE, "/ayuntamiento").hasAuthority("AYUNTAMIENTO")
 
                 // Ver solicitudes dirigidas a su ayuntamiento
-                .requestMatchers(HttpMethod.GET, "/solicitud/ayuntamiento").hasAuthority("AYUNTAMIENTO")
+                .requestMatchers(HttpMethod.GET, "/solicitud/Ayuntamiento").hasAuthority("AYUNTAMIENTO")
 
                 // Cambiar estado de solicitudes (aceptar/rechazar)
                 .requestMatchers(HttpMethod.PUT, "/solicitud/aceptar/{id}").hasAuthority("AYUNTAMIENTO")
