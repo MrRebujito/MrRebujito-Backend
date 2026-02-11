@@ -59,7 +59,7 @@ public class SolicitudLicenciaController {
 		return ResponseEntity.ok(listSolicitud);
 	}
 
-	@GetMapping("/Ayuntamiento")
+	@GetMapping("/ayuntamiento")
 	@Operation(summary = "Obtener todas las solicitudes de ayuntamiento")
 	@ApiResponses(value = {
 			@ApiResponse(responseCode = "200", description = "Lista de solicitudes de ayuntamiento obtenida exitosamente"),

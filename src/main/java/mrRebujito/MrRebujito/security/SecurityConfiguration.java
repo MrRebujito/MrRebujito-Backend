@@ -127,7 +127,7 @@ public class SecurityConfiguration {
                 .requestMatchers(HttpMethod.DELETE, "/ayuntamiento").hasAuthority("AYUNTAMIENTO")
 
                 // Ver solicitudes dirigidas a su ayuntamiento
-                .requestMatchers(HttpMethod.GET, "/solicitud/Ayuntamiento").hasAuthority("AYUNTAMIENTO")
+                .requestMatchers(HttpMethod.GET, "/solicitud/ayuntamiento").hasAuthority("AYUNTAMIENTO")
 
                 // Cambiar estado de solicitudes (aceptar/rechazar)
                 .requestMatchers(HttpMethod.PUT, "/solicitud/aceptar/{id}").hasAuthority("AYUNTAMIENTO")
