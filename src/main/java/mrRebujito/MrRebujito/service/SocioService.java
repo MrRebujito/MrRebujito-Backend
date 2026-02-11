@@ -97,7 +97,14 @@ public class SocioService {
     }
     
 
-    
+    public Socio getSelf() {
+        Socio socioLogin = jwtUtils.userLogin();
+        
+        if (socioLogin != null) {
+            return socioLogin;
+        }
+        return null;
+    }
     
     public Optional<Socio> findSocioByUsername(String username){
         return socioRepository.findByUsername(username);

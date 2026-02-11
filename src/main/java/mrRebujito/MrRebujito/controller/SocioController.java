@@ -90,6 +90,15 @@ public class SocioController {
 		}
 		return ResponseEntity.ok(casetas);
 	}
+	
+	@GetMapping("/detalles")
+	public ResponseEntity<Socio> verPerfil() {
+		Socio socio = socioService.getSelf();
+		if (socio == null) {
+			return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+		}
+		return ResponseEntity.ok(socio);
+	}
 
 	@GetMapping
 	public ResponseEntity<List<Socio>> findAll() {

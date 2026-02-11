@@ -105,7 +105,7 @@ public class SecurityConfiguration {
                 .requestMatchers(HttpMethod.POST, "/socio").hasAuthority("ADMIN")
 
                 // ADMIN puede ver la lista de socios
-                .requestMatchers(HttpMethod.GET, "/socio", "/socio/{id}").hasAuthority("ADMIN")
+                .requestMatchers(HttpMethod.GET, "/socio", "/socio/{id}").hasAnyAuthority("ADMIN", "CASETA")
 
                 // ADMIN puede banear y desbanear actores
                 .requestMatchers(HttpMethod.PUT, "/banear/{actorId}").hasAuthority("ADMIN")
@@ -167,6 +167,7 @@ public class SecurityConfiguration {
                 // Editar y borrar su propio perfil
                 .requestMatchers(HttpMethod.PUT, "/socio").hasAuthority("SOCIO")
                 .requestMatchers(HttpMethod.DELETE, "/socio").hasAuthority("SOCIO")
+                .requestMatchers(HttpMethod.GET, "/socio/detalles").hasAuthority("SOCIO")
 
                 // ==========================================
                 // TODAS LAS DEMAS RUTAS requieren autenticacion
