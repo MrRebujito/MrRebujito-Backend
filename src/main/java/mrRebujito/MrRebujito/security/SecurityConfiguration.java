@@ -94,7 +94,7 @@ public class SecurityConfiguration {
                 // ==========================================
 
                 // CRUD completo de administradores
-                .requestMatchers("/administrador/**", "/administrador").hasAuthority("ADMIN")
+                .requestMatchers("/administrador/**", "/administrador", "administrador/{id}").hasAuthority("ADMIN")
 
                 // ADMIN crea, edita y borra ayuntamientos por ID
                 .requestMatchers(HttpMethod.POST, "/ayuntamiento").hasAuthority("ADMIN")

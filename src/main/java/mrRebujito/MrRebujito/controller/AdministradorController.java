@@ -95,4 +95,13 @@ public class AdministradorController {
 	public ResponseEntity<List<Administrador>> findAllAdministradores() {
 		return ResponseEntity.ok(administradorService.getAllAdministradores());
 	}
+	
+	@GetMapping("{id}")
+	@Operation(summary = "Recoger todos los administradores", description = "Busca y devuelve una lista de administradores")
+	@ApiResponses(value = { 
+			@ApiResponse(responseCode = "200", description = "Administrador eliminado correctamente"),
+			@ApiResponse(responseCode = "400", description = "Administrador no encontrado") })
+	public ResponseEntity<Administrador> findAdministradorById(@PathVariable int id) {
+		return ResponseEntity.ok(administradorService.getAdministradorById(id).get());
+	}
 }
