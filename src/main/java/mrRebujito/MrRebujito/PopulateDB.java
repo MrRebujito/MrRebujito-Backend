@@ -98,6 +98,7 @@ public class PopulateDB implements CommandLineRunner {
         casetaLaFesta.setSocios(new ArrayList<>(Arrays.asList(socio1))); 
         casetaLaFesta.setProductos(new ArrayList<>(Arrays.asList(rebujito, jamon))); 
         casetaLaFesta.setSolicitudesLicencia(new ArrayList<>());
+        casetaLaFesta.setFoto("https://sevillasecreta.co/wp-content/uploads/2017/09/feria_de_abril_en_patio_de_la_Cartuja1.jpg");
         
         casetaService.saveCaseta(casetaLaFesta);
 
