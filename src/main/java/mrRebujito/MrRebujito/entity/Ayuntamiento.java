@@ -18,7 +18,7 @@ public class Ayuntamiento extends Actor{
 
 	public Ayuntamiento(@NotNull @Min(0) int licenciaMax) {
 		super();
-		licenciaMax = licenciaMax;
+		this.licenciaMax = licenciaMax;
 	}
 
 	public int getLicenciaMax() {
@@ -26,7 +26,7 @@ public class Ayuntamiento extends Actor{
 	}
 
 	public void setLicenciaMax(int licenciaMax) {
-		licenciaMax = licenciaMax;
+		this.licenciaMax = licenciaMax;
 	}
 
 }
