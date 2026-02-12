@@ -52,13 +52,19 @@ public class ActorController {
 
 	@PostMapping("/login")
 	public ResponseEntity<String> login(@RequestBody ActorLogin actorLogin) {
-	    Authentication authentication = authenticationManager.authenticate(
-	        new UsernamePasswordAuthenticationToken(actorLogin.getUsername(), actorLogin.getPassword()));
-	    SecurityContextHolder.getContext().setAuthentication(authentication);
-	    String token = JWTUtils.generateToken(authentication);
-	    return ResponseEntity.ok(token); 
+	    try {
+	        Authentication authentication = authenticationManager.authenticate(
+	            new UsernamePasswordAuthenticationToken(actorLogin.getUsername(), actorLogin.getPassword()));
+	        
+	        SecurityContextHolder.getContext().setAuthentication(authentication);
+	        String token = JWTUtils.generateToken(authentication);
+	        return ResponseEntity.ok(token); 
+	        
+	    } catch (org.springframework.security.core.AuthenticationException e) {
+	        // Si falla el login, devolvemos 401 en lugar de dejar que Spring lance un 403
+	        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Usuario o contraseña incorrectos");
+	    }
 	}
-	
 	@Operation(summary = "Obtener datos del actor logueado")
 	@GetMapping("/actorLogin")
 	public ResponseEntity<Actor> getActorLogueado() {
